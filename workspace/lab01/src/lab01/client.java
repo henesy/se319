@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
 import java.util.Scanner;
 
 public class client {
@@ -36,7 +37,7 @@ public class client {
 	
 	//!!! need thread to read and print (Even if typing)
 	
-	Thread t = new Thread(new ServerHandler(socket));
+	Thread t = new Thread(new ServerHandler(socket, name));
 	t.start();
 	
 	String input = null;
@@ -58,10 +59,12 @@ public class client {
 		if(input.contains("!file")) {
 			//enter file mode
 			System.out.println("Entered FILE mode!");
+			out.println(input);
 			textMode = false;
 		} else if(input.contains("!text")) {
 			//enter text mode 
 			System.out.println("Entered TEXT mode!");
+			out.println(input);
 			textMode = true;
 		} else {
 			//write text or file, depending
@@ -70,7 +73,11 @@ public class client {
 			else {
 				//attempt to open file from path
 				file = new File(input);
-				fout.writeObject(file);
+				System.out.println("Sending " + file.getName());
+				byte[] ofile = Files.readAllBytes(file.toPath());
+				fout.writeObject(ofile);
+				fout.flush();
+				textMode = true;
 			}
 		}
 		out.flush();
@@ -99,36 +106,72 @@ public class client {
 
 class ServerHandler implements Runnable {
 	private Socket socket;
+	private String name;
 	
-	public ServerHandler(Socket s) {
+	public ServerHandler(Socket s, String n) {
 		socket = s;
+		name = n;
 	}
 	
 	public synchronized void run() {
+		boolean textMode = true;
 		boolean first = true;
+		int imageCount = 0;
 		System.out.println("Entered the read loop!");
 		while(true) {
 			Scanner in = null;
-			try {
-				in = new Scanner(new BufferedInputStream(socket.getInputStream()));
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} 
-			if(first) {
-				in.nextLine();
-				first = false;
-			}
-			if(in.hasNextLine()) {
-				String b = in.nextLine();
-				System.out.println(b);
-			}
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+				if(textMode) {
+					try {
+						in = new Scanner(new BufferedInputStream(socket.getInputStream()));
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} 
+					if(first) {
+						in.nextLine();
+						first = false;
+					}
+					if(in.hasNextLine()) {
+						String b = in.nextLine();
+						System.out.println(b);
+						if(b.contains("FILE") && !b.contains(name))
+							textMode = false;
+					}
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} else {
+					System.out.println("Waiting to read a file...");
+					ObjectInputStream fin = null;
+					try {
+						fin = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					byte[] ifile = null;
+					try {
+						ifile = (byte[]) fin.readObject();
+					} catch (ClassNotFoundException | IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					File file = new File("./image" + imageCount + ".jpg");
+					imageCount++;
+					try {
+						Files.write(file.toPath(), ifile);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					 
+					System.out.println("Got file: " + file.getName() + " at: " + file.getAbsolutePath());
+					
+					textMode = true;
+				}
 		}
 	}
 }

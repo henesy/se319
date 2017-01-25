@@ -5,9 +5,11 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -81,6 +83,8 @@ class ClientHandler implements Runnable {
 	public synchronized void run() {
 		printSocketInfo(s); // just print some information at the server side about the connection
 		Scanner in;
+		boolean textMode = true;
+		int imageCount = 0;
 		
 		System.out.println(clients.toString());
 		
@@ -91,19 +95,31 @@ class ClientHandler implements Runnable {
 			
 			sendAll(name + " has connected");
 			
-			while(true) {
-				String str = in.nextLine();
-				
+			while(true) {				
 				//file receive logic here 
-				if(str.contains("!file")) {
-					 ObjectInputStream fin = new ObjectInputStream(new BufferedInputStream(s.getInputStream()));
-					 File file = (File) fin.readObject();
-					 
-					 //write file here
-				}
 				
-				System.out.println(name + ": " + str);
-				sendAll(name + ": " + str);
+					if(textMode) {
+						String str = in.nextLine();
+						if(str.contains("!file")) {
+							 textMode = false;
+							 sendAll(name + " entered FILE mode!");
+						} else {
+							System.out.println(name + ": " + str);
+							sendAll(name + ": " + str);
+						}
+					} else {
+						ObjectInputStream fin = new ObjectInputStream(new BufferedInputStream(s.getInputStream()));
+						byte[] ifile = (byte[]) fin.readObject();
+						File file = new File("./image" + imageCount + ".jpg");
+						imageCount++;
+						Files.write(file.toPath(), ifile);
+						 
+						System.out.println("Got file: " + file.getName() + " at: " + file.getAbsolutePath());
+						sendAllFile(ifile, file.getName());
+						sendAll(name + ": Sending " + file.getName());
+						
+						textMode = true;
+					}
 			}
 			
 		} catch (IOException | ClassNotFoundException e) {
@@ -121,6 +137,19 @@ class ClientHandler implements Runnable {
 			PrintWriter out = new PrintWriter(new BufferedOutputStream(clients.get(i).getOutputStream()));
 			out.println(str);
 			out.flush();
+		}
+	}
+	
+	void sendAllFile(byte[] file, String name) throws IOException {
+		int i;
+		for(i = 0; i < clients.size(); i++) {
+			/* write to all clients */
+			//Scanner in = new Scanner(new BufferedInputStream(clients.get(i).getInputStream())); 
+			if(!s.equals(clients.get(i))) {
+				ObjectOutputStream fout = new ObjectOutputStream(new BufferedOutputStream(clients.get(i).getOutputStream()));
+				fout.writeObject(file);
+				fout.flush();
+			}
 		}
 	}
 
