@@ -1,0 +1,99 @@
+package lab01;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Scanner;
+
+public class client {
+	private String name;
+	
+	public client() {
+		name = "nil";
+	}
+	
+	public void start() throws UnknownHostException,
+	IOException {
+	
+	Scanner in = new Scanner(System.in);
+	System.out.print("Desired name?: ");
+	name = in.nextLine();
+	System.out.println("Using username " + name);
+		
+	// 1. CONNECT TO THE SERVER AT PORT 4444 
+	Socket socket = new Socket("localhost", 4444);
+	printSocketInfo(socket);
+	
+	
+	//!!! need thread to read and print (Even if typing)
+	
+	Thread t = new Thread(new ServerHandler(socket));
+	t.start();
+	
+	String input = null;
+	PrintWriter out = new PrintWriter(new BufferedOutputStream(socket.getOutputStream()));
+	out.write(name);
+	
+	while(true) {
+		System.out.print("[" + name +  "]" + "> ");
+		input = in.nextLine();
+		if(input.compareTo("!quit") == 0)
+			break;
+		
+		if(input.contains("!file")) {
+			//write image
+			
+		} else {
+			//write text
+			out.write(input);
+		}
+		out.flush();
+	}
+	
+	System.out.println("Goodbye!");
+	/*
+	// 2. WRITE A MESSAGE TO THE SOCKET TO SEND TO THE SERVER
+	PrintWriter out = new PrintWriter(new BufferedOutputStream(socket.getOutputStream()));
+	out.print("Client socket Local Address: " + socket.getLocalAddress() + ":" + socket.getLocalPort());
+	out.println("  Client socket Remote Address: " + socket.getRemoteSocketAddress());
+	out.flush(); // forces data from buffer to be sent to server
+	*/
+	
+	// client dies here
+	
+	}
+	
+	static void printSocketInfo(Socket s) {
+	System.out.print("Socket on Client Side: ");
+	System.out.print("Local Address: " + s.getLocalAddress() + ":"
+			+ s.getLocalPort());
+	System.out.println("  Remote Address: " + s.getRemoteSocketAddress());
+	}
+}
+
+class ServerHandler implements Runnable {
+	private Socket socket;
+	
+	public ServerHandler(Socket s) {
+		socket = s;
+	}
+	
+	public synchronized void run() {
+		System.out.println("Entered the read loop!");
+		while(true) {
+			Scanner in = new Scanner(new BufferedInputStream(clients.get(i).getInputStream())); 
+			String b = in.nextLine()
+			System.out.println(b);
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+}

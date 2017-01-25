@@ -1,0 +1,27 @@
+package lab01;
+
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.Scanner;
+
+public class primary {
+	public static void main(String[] args) {
+		Scanner in = new Scanner(System.in);
+		
+		System.out.println("Team 20 server client chat server, !quit will exit the program.");
+		System.out.printf("Client or Server? [c/s]: ");
+		String mode = in.nextLine();
+		if(mode.contains("c")) {
+			client c = new client();
+			try {
+				c.start();
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+}

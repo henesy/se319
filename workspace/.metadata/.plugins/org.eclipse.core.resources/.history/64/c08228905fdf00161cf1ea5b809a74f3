@@ -1,0 +1,7 @@
+package lab01;
+
+public class primary {
+	public static void main(String[] args) {
+		System.out.println("Team 20 server client chat server, !quit will exit the program.");
+	}
+}
