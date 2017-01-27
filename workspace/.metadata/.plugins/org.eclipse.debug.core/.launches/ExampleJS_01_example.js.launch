@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.wst.jsdt.js.node.NodeLaunchConfigurationType">
+<stringAttribute key="attr_app_path" value="${workspace_loc:/ExampleJS/01_example.js}"/>
+<stringAttribute key="attr_app_project" value="ExampleJS"/>
+<stringAttribute key="attr_app_project_relative_path" value="01_example.js"/>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/ExampleJS"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="4"/>
+</listAttribute>
+</launchConfiguration>
