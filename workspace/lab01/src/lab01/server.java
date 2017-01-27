@@ -2,7 +2,12 @@ package lab01;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -77,6 +82,7 @@ class ClientHandler implements Runnable {
 	private ArrayList<Socket> clients;
 	Base64.Encoder enc;
 	Base64.Decoder dec;
+	int messageCount;
 
 	ClientHandler(Socket s, int n, ArrayList<Socket> cl) {
 		this.s = s;
@@ -95,7 +101,9 @@ class ClientHandler implements Runnable {
 		printSocketInfo(s); // just print some information at the server side about the connection
 		Scanner in;
 		boolean textMode = true;
-		int messageCount = 1;
+		
+		//get from file
+		messageCount = 1;
 		
 		
 		/*
@@ -126,6 +134,17 @@ class ClientHandler implements Runnable {
 				
 					if(textMode) {
 						String str = new String(dec.decode(in.nextLine()));
+						
+						if(str.contains("!list")) {
+							send(getMessages());
+						} else if(str.contains("!del")) {
+							Scanner stmp = new Scanner(str);
+							stmp.next();
+							int linen = stmp.nextInt();
+							delMessage(linen);
+							stmp.close();
+						}
+						
 						if(str.contains("!file")) {
 							 textMode = false;
 							 sendAll(name + " entered FILE mode!");
@@ -145,7 +164,8 @@ class ClientHandler implements Runnable {
 						sendAll(name + ": Sending " + file.getName());
 						
 						try {
-						    Files.write(Paths.get("chat.txt"), (ifileName + "\n").getBytes(), StandardOpenOption.APPEND);
+						    Files.write(Paths.get("chat.txt"), (messageCount + " " + ifileName + "\n").getBytes(), StandardOpenOption.APPEND);
+						    messageCount++;
 						} catch (IOException e) {
 						    System.out.println(e.getStackTrace());
 						}
@@ -161,6 +181,63 @@ class ClientHandler implements Runnable {
 		// This handling code dies after doing all the printing
 	} // end of method run()
 	
+	private String getMessages() throws FileNotFoundException {
+		// TODO Auto-generated method stub
+		
+		Scanner chat = new Scanner(new File("chat.txt"));
+		String str = "";
+		while(chat.hasNextLine()) {
+			str += chat.nextLine() + "\n";
+		}
+		chat.close();
+		
+		return str;
+	}
+	
+	private void delMessage(int x) throws IOException {
+		// TODO Auto-generated method stub
+		//messageCount--;
+		
+		File chat = new File("chat.txt");
+		File tmp = new File("chatTmp.txt");
+		
+		
+		BufferedReader r = new BufferedReader(new FileReader(chat));
+		BufferedWriter w = new BufferedWriter(new FileWriter(tmp));
+		
+		String str;
+		
+		int i;
+		for(i = 1; (str = r.readLine()) != null; i++) {
+			if(Character.getNumericValue(str.charAt(0)) == x) {
+				i-=2;
+				continue;
+			}
+						
+			w.write(i + str.substring(1) + "\n");
+		}
+		w.close();
+		r.close();
+		chat.delete();
+		tmp.renameTo(chat);
+	}
+	
+	int getLastMNumber() throws FileNotFoundException {
+		File chat = new File("chat.txt");
+		Scanner sc = new Scanner(chat);
+		
+		while(true) {
+			String str = sc.nextLine();
+			if(!sc.hasNextLine()) {
+				sc.close();
+				if(str == null)
+					return 1;
+				
+				return Character.getNumericValue(str.charAt(0));
+			}
+		}
+	}
+
 	void sendAll(String str) throws IOException {
 		int i;
 		for(i = 0; i < clients.size(); i++) {
@@ -172,7 +249,8 @@ class ClientHandler implements Runnable {
 		}
 		
 		try {
-		    Files.write(Paths.get("chat.txt"), ((str + "\n")).getBytes(), StandardOpenOption.APPEND);
+		    Files.write(Paths.get("chat.txt"), ((messageCount + " " + str + "\n")).getBytes(), StandardOpenOption.APPEND);
+		    messageCount++;
 		} catch (IOException e) {
 		    System.out.println(e.getStackTrace());
 		}
@@ -190,6 +268,12 @@ class ClientHandler implements Runnable {
 				fout.flush();
 			}
 		}
+	}
+	
+	void send(String str) throws IOException {
+		PrintWriter out = new PrintWriter(new BufferedOutputStream(s.getOutputStream()));
+		out.println(new String(enc.encode(str.getBytes())));
+		out.flush();
 	}
 
 	void printSocketInfo(Socket s) {

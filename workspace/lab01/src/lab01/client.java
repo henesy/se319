@@ -76,19 +76,28 @@ public class client {
 			input = in.nextLine();
 		}
 		
-		if(admin) {
-			
+		if(admin && sel != 1) {
+			if(sel == 2) {
+				input = "!list";
+			} else {
+				int num = 0;
+				System.out.print("Message number?: ");
+				num = in.nextInt();
+				input = "!del " + num;
+			}
+		} else {
+			if(sel == 2)
+				textMode = false;
+			else
+				textMode = true;	
 		}
 		
-		if(sel == 2)
-			textMode = false;
-		else
-			textMode = true;	
+		
 		
 		if(input.compareTo("!quit") == 0)
 			break;
 		
-		if(input.contains("!file") || sel == 2) {
+		if((input.contains("!file") || sel == 2) && !admin) {
 			//enter file mode
 			System.out.println("Entered FILE mode!");
 			out.println(new String(enc.encode("!file".getBytes())));
