@@ -2778,3 +2778,15 @@ java.io.FileNotFoundException: C:\Program Files\Eclipse\introData.xml (The syste
 
 !ENTRY org.eclipse.wst.jsdt.js.node 4 0 2017-01-27 16:44:50.081
 !MESSAGE Unable to run Node.js program. Verify you have a configured Node.js runtime environment in your system and try again.
+
+!ENTRY org.eclipse.jface.text 2 0 2017-01-27 16:55:11.816
+!MESSAGE Duplicate template id: 'org.eclipse.wst.xslt.templates.xpath.number'
+
+!ENTRY org.eclipse.jface.text 2 0 2017-01-27 16:55:11.822
+!MESSAGE Duplicate template id: 'org.eclipse.wst.xslt.templates.xpath.round'
+
+!ENTRY org.eclipse.jface.text 2 0 2017-01-27 16:56:17.572
+!MESSAGE Duplicate template id: 'org.eclipse.wst.xslt.templates.xpath.number'
+
+!ENTRY org.eclipse.jface.text 2 0 2017-01-27 16:56:17.576
+!MESSAGE Duplicate template id: 'org.eclipse.wst.xslt.templates.xpath.round'

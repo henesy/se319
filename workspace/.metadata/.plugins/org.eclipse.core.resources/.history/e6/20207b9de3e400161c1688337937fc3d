@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<title>"Validation Form"</title>
+
+
+<body>
+
+<form id="Biography" action="" >
+    <fieldset>
+      <legend>Biography</legend>
+      <p id="First Name">
+        <label for="first">First Name</label>
+        <input id="first" name="first" type="text" />
+      </p>
+      <p id="Last Name">
+        <label for="last">Last Name</label>
+        <input id="last" name="last" type="text" />
+      </p>
+    </fieldset>
+  </form>
+</body>
+
+
+</html> 
