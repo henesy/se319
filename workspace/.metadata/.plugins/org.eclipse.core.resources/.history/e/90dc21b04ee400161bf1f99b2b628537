@@ -27,15 +27,6 @@ public class server {
 	private ArrayList<Socket> clients;
 	
 	public void start() throws IOException {
-		File f = new File("chat.txt");
-		if(!f.exists()) {
-			Path file = Paths.get("chat.txt");
-			Files.write(file, "".getBytes(), StandardOpenOption.CREATE);
-		}
-		File d = new File("images");
-		if(!d.exists()) {
-			d.mkdir();
-		}
 
 		ServerSocket serverSocket = null;
 		int clientNum = 0; // keeps track of how many clients were created
@@ -113,7 +104,7 @@ class ClientHandler implements Runnable {
 		
 		//get from file
 		try {
-			messageCount = getLastMNumber()+1;
+			messageCount = getLastMNumber();
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -131,6 +122,15 @@ class ClientHandler implements Runnable {
 		System.out.println(clients.toString());
 		
 		try {
+			File f = new File("chat.txt");
+			if(!f.exists()) {
+				Path file = Paths.get("chat.txt");
+				Files.write(file, "".getBytes(), StandardOpenOption.CREATE);
+			}
+			File d = new File("images");
+			if(!d.exists()) {
+				d.mkdir();
+			}
 			
 			// 1. USE THE SOCKET TO READ WHAT THE CLIENT IS SENDING
 			in = new Scanner(new BufferedInputStream(s.getInputStream())); 
@@ -165,7 +165,7 @@ class ClientHandler implements Runnable {
 						ObjectInputStream fin = new ObjectInputStream(new BufferedInputStream(s.getInputStream()));
 						String ifileName = new String(dec.decode(((String) fin.readObject()).getBytes()));
 						byte[] ifile = dec.decode(((byte[]) fin.readObject()));
-						File file = new File("images/" + (name + "+" + java.time.Instant.now().toString().replaceAll(":", "") + ifileName.substring(ifileName.length()-4)));
+						File file = new File("images/" + (name + "+" + java.time.Instant.now().toString()));
 						Files.write(file.toPath(), ifile);
 						 
 						System.out.println("Got file: " + file.getName() + " at: " + file.getAbsolutePath());
@@ -235,16 +235,14 @@ class ClientHandler implements Runnable {
 		File chat = new File("chat.txt");
 		Scanner sc = new Scanner(chat);
 		
-		String str = null;
 		while(true) {
+			String str = sc.nextLine();
 			if(!sc.hasNextLine()) {
 				sc.close();
 				if(str == null)
 					return 1;
 				
 				return Character.getNumericValue(str.charAt(0));
-			} else {
-				str = sc.nextLine();
 			}
 		}
 	}

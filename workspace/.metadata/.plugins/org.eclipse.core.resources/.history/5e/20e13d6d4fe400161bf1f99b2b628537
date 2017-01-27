@@ -113,7 +113,7 @@ class ClientHandler implements Runnable {
 		
 		//get from file
 		try {
-			messageCount = getLastMNumber()+1;
+			messageCount = getLastMNumber();
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -165,7 +165,7 @@ class ClientHandler implements Runnable {
 						ObjectInputStream fin = new ObjectInputStream(new BufferedInputStream(s.getInputStream()));
 						String ifileName = new String(dec.decode(((String) fin.readObject()).getBytes()));
 						byte[] ifile = dec.decode(((byte[]) fin.readObject()));
-						File file = new File("images/" + (name + "+" + java.time.Instant.now().toString().replaceAll(":", "") + ifileName.substring(ifileName.length()-4)));
+						File file = new File("images/" + (name + "+" + java.time.Instant.now().toString()));
 						Files.write(file.toPath(), ifile);
 						 
 						System.out.println("Got file: " + file.getName() + " at: " + file.getAbsolutePath());
