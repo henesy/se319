@@ -240,7 +240,7 @@ class ClientHandler implements Runnable {
 			if(!sc.hasNextLine()) {
 				sc.close();
 				if(str == null)
-					return 1;
+					return 0;
 				
 				return Character.getNumericValue(str.charAt(0));
 			} else {

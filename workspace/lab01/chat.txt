@@ -1,0 +1,5 @@
+1 admin has connected
+1 admin: 3
+4 admin: !del 2
+5 admin: 2
+6 admin: !list

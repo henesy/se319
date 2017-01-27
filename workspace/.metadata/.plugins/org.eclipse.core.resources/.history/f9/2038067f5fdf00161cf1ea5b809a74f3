@@ -1,7 +1,0 @@
-package lab01;
-
-public class primary {
-	public static void main(String[] args) {
-		
-	}
-}
