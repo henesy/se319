@@ -9,9 +9,14 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Base64;
 
 public class server {
 	private ArrayList<Socket> clients;
@@ -70,6 +75,8 @@ class ClientHandler implements Runnable {
 	int num; // keeps track of its number just for identifying purposes
 	/* this should just be a socket list with some synchronized love */
 	private ArrayList<Socket> clients;
+	Base64.Encoder enc;
+	Base64.Decoder dec;
 
 	ClientHandler(Socket s, int n, ArrayList<Socket> cl) {
 		this.s = s;
@@ -77,6 +84,10 @@ class ClientHandler implements Runnable {
 		
 		//import pointer for list of clients
 		clients = cl;
+		
+		//set up dec and enc
+		enc = Base64.getEncoder();;
+		dec = Base64.getDecoder();
 	}
 
 	// This is the client handling code ;; synchronized added, can be removed
@@ -84,14 +95,29 @@ class ClientHandler implements Runnable {
 		printSocketInfo(s); // just print some information at the server side about the connection
 		Scanner in;
 		boolean textMode = true;
-		int imageCount = 0;
+		int messageCount = 1;
+		
+		
+		/*
+		try {
+		    Files.write(Paths.get("myfile.txt"), "the text".getBytes(), StandardOpenOption.APPEND);
+		}catch (IOException e) {
+		    //exception handling left as an exercise for the reader
+		}
+		*/
 		
 		System.out.println(clients.toString());
 		
 		try {
+			File f = new File("chat.txt");
+			if(!f.exists()) {
+				Path file = Paths.get("chat.txt");
+				Files.write(file, "".getBytes(), StandardOpenOption.CREATE);
+			}
+			
 			// 1. USE THE SOCKET TO READ WHAT THE CLIENT IS SENDING
 			in = new Scanner(new BufferedInputStream(s.getInputStream())); 
-			String name = in.nextLine();
+			String name = new String(dec.decode(in.nextLine().getBytes()));
 			
 			sendAll(name + " has connected");
 			
@@ -99,7 +125,7 @@ class ClientHandler implements Runnable {
 				//file receive logic here 
 				
 					if(textMode) {
-						String str = in.nextLine();
+						String str = new String(dec.decode(in.nextLine()));
 						if(str.contains("!file")) {
 							 textMode = false;
 							 sendAll(name + " entered FILE mode!");
@@ -109,14 +135,20 @@ class ClientHandler implements Runnable {
 						}
 					} else {
 						ObjectInputStream fin = new ObjectInputStream(new BufferedInputStream(s.getInputStream()));
-						byte[] ifile = (byte[]) fin.readObject();
-						File file = new File("./image" + imageCount + ".jpg");
-						imageCount++;
+						String ifileName = new String(dec.decode(((String) fin.readObject()).getBytes()));
+						byte[] ifile = dec.decode(((byte[]) fin.readObject()));
+						File file = new File(ifileName);
 						Files.write(file.toPath(), ifile);
 						 
 						System.out.println("Got file: " + file.getName() + " at: " + file.getAbsolutePath());
-						sendAllFile(ifile, file.getName());
+						sendAllFile(ifile, file.getName(), ifileName);
 						sendAll(name + ": Sending " + file.getName());
+						
+						try {
+						    Files.write(Paths.get("chat.txt"), (ifileName + "\n").getBytes(), StandardOpenOption.APPEND);
+						} catch (IOException e) {
+						    System.out.println(e.getStackTrace());
+						}
 						
 						textMode = true;
 					}
@@ -135,19 +167,26 @@ class ClientHandler implements Runnable {
 			/* write to all clients */
 			//Scanner in = new Scanner(new BufferedInputStream(clients.get(i).getInputStream())); 
 			PrintWriter out = new PrintWriter(new BufferedOutputStream(clients.get(i).getOutputStream()));
-			out.println(str);
+			out.println(new String(enc.encode(str.getBytes())));
 			out.flush();
+		}
+		
+		try {
+		    Files.write(Paths.get("chat.txt"), ((str + "\n")).getBytes(), StandardOpenOption.APPEND);
+		} catch (IOException e) {
+		    System.out.println(e.getStackTrace());
 		}
 	}
 	
-	void sendAllFile(byte[] file, String name) throws IOException {
+	void sendAllFile(byte[] file, String name, String ifileName) throws IOException {
 		int i;
 		for(i = 0; i < clients.size(); i++) {
 			/* write to all clients */
 			//Scanner in = new Scanner(new BufferedInputStream(clients.get(i).getInputStream())); 
 			if(!s.equals(clients.get(i))) {
 				ObjectOutputStream fout = new ObjectOutputStream(new BufferedOutputStream(clients.get(i).getOutputStream()));
-				fout.writeObject(file);
+				fout.writeObject(new String(enc.encode(ifileName.getBytes())));
+				fout.writeObject(enc.encode(file));
 				fout.flush();
 			}
 		}
