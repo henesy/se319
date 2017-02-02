@@ -1,0 +1,97 @@
+ <html>
+ <body>
+ <p>
+ 	<input type="button" onclick="clearInterval(timer)" value="Stop">
+ 	<input type="button" onclick="timer = setInterval(drawer, 1000)" value="Start">
+ </p>
+ </body>
+ 
+ <canvas id="myCanvas" width="800" height="600"
+style="border:1px solid #000000;">
+
+
+</canvas> 
+
+<script>
+
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+
+var dir = "east";
+
+<!--> initial draw </!-->
+ctx.fillStyle = "#FF0000";
+ctx.fillRect(0,300,5,5);
+
+function drawRect(x, y) {
+	ctx.fillStyle = "#FF0000";
+	ctx.fillRect(x,y,5,5);
+}
+
+
+var x = 0;
+var y = 300;
+var xmod = 5;
+var ymod = 0;
+
+var drawer = function() {
+	drawRect(x+=xmod, y+=ymod);
+}
+var timer = setInterval(drawer, 1000);
+
+var shiftLeft = function() {
+	switch(dir) {
+		case "east":
+		dir = "north";
+		xmod = 0;
+		ymod = -5;
+		
+		break;
+		case "north":
+		dir = "west";
+		xmod = -5;
+		ymod = 0;
+		
+		break;
+		case "west":
+		dir = "south";
+		xmod = 0;
+		ymod = 5;
+		
+		break;
+		case "south":
+		dir = "east";
+		xmod = 5;
+		ymod = 0;
+		
+		break;
+		default:
+	}
+}
+
+var shiftRight = function() {
+	switch(dir) {
+		case "east":
+		
+		
+		break;
+		case "north":
+		dir = "east";
+		xmod = 5;
+		ymod = 0;
+		
+		break;
+		case "west":
+		
+		break;
+		case "south":
+		
+		break;
+		default:
+	}
+}
+
+
+</script>
+
+</html>

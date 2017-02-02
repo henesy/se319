@@ -1,0 +1,31 @@
+ <html>
+ <body>
+ <p>
+ 	<input type="button" onclick="clearInterval(timer)" value="Stop Countdown">
+ </p>
+ </body>
+ 
+ <canvas id="myCanvas" width="800" height="600"
+style="border:1px solid #000000;">
+
+
+</canvas> 
+
+<script>
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+
+<!--> initial draw </!-->
+ctx.fillStyle = "#FF0000";
+ctx.fillRect(0,300,5,5);
+
+drawRect(0+5, 300);
+
+function drawRect(x, y) {
+	ctx.fillStyle = "#FF0000";
+	ctx.fillRect(x,y,5,5);
+}
+
+</script>
+
+</html>
