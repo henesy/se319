@@ -1,0 +1,56 @@
+<html> 
+<head>
+<script src="./validation1.js"></script>
+<title>
+      Validation Form
+</title>
+</head>
+
+<body>
+<h1>
+  Validation Form
+</h1>
+<form id="validation1" action="" >
+  <fieldset>
+    <legend>Contact Details</legend>
+    <p id="Fname">
+      <label for="fname">First Name</label> 
+      <input id="fname" name="custname" type="TextField"/>
+    </p>
+    <p id="Sname">
+      <label for="sname">Last Name</label> 
+      <input id="sname" name="custname" type="TextField"/>
+    </p>
+    <p id="Gender">
+      <label for="gender">Gender</label> 
+      <select id="gender" name="Gender">
+		<option value="male">Male</option>
+		<option value="female">Female</option>
+	  </select>
+   
+    </p>
+    <p id="State">
+      <label for="state">State</label> 
+      <select id="state" name="Gender">
+		<option value="california">California</option>
+		<option value="florida">Florida</option>
+		<option value="newyork">New York</option>
+		<option value="texas">Texas</option>
+		<option value="hawaii">Hawaii</option>
+		<option value="washington">Washington</option>
+		<option value="colorado">Colorado</option>
+		<option value="virginia">Virginia</option>
+		<option value="iowa">Iowa</option>
+		<option value="arizona">Arizona</option>
+	  </select>
+    </p>
+    <p>
+      <input type="button" id="submit" name="submit" value="Continue" onclick="validate()"/>
+      <input type="reset" value="clear" />
+    </p>
+  </fieldset>
+</form>
+
+
+</body>
+</html>

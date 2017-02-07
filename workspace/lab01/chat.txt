@@ -1,5 +1,24 @@
 1 admin has connected
-1 admin: 3
-4 admin: !del 2
-5 admin: 2
-6 admin: !list
+2 admin: 3
+3 admin: !del 2
+4 admin: 2
+5 admin: !list
+6 admin has connected
+7 admin: hello there
+70 sam: hello
+70 admin: 1
+11 admin: !del 9
+12 admin: 2
+13 admin: !list
+7 sean has connected
+8 sean: ohai
+9 sean: welcome
+10 sean: 
+11 sean entered FILE mode!
+12 sean: Sending sean+2017-02-03T201022.836Z.png
+13 smiley.png
+14 admin: 
+11 sam: 
+12 sam entered FILE mode!
+13 sam: Sending sam+2017-02-03T201207.929Z.png
+14 9troll03.png
