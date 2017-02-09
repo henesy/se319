@@ -6,4 +6,45 @@
 	<p>{{.Body}}</p>
 	</body>
 
+	<canvas id="maingame" width="400" height="400" style="border:1px solid #000000;">
+
+
+	</canvas>
+
 </html>
+
+<script>
+
+var canvas = document.getElementById("maingame");
+var ctx = canvas.getContext("2d");
+ctx.fillStyle = "#FF0000";
+
+var drawLine = function(x0, y0, x1, y1) {
+	ctx.moveTo(x0,y0);
+	ctx.lineTo(x1,y1);
+	ctx.stroke();
+}
+
+//drawLine(0,0,340,0);
+
+// horizontal draw
+var x0 = 18;
+var y0 = 18;
+var x1 = 306;
+var y1 = 18;
+
+for(i = 0; i < 9; i++, y0+=36, y1+=36) {
+	drawLine(x0,y0,x1,y1);
+}
+
+// vertical draw
+var x0 = 18;
+var y0 = 18;
+var x1 = 18;
+var y1 = 306;
+
+for(j = 0; j < 9; j++, x0+=36, x1+=36) {
+	drawLine(x0,y0,x1,y1);
+}
+
+</script>

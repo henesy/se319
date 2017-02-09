@@ -74,8 +74,6 @@ func getPath(w http.ResponseWriter, req *http.Request) string {
 	if m == nil {
 		http.NotFound(w, req)
 	}
-	fmt.Println("ERROR!!!!")
-	fmt.Print(m)
 	return m[2]
 }
 
