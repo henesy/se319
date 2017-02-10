@@ -274,6 +274,7 @@ func main() {
 	http.HandleFunc("/kill/", killHandler)
 	http.HandleFunc("/win/", winHandler)
 	http.HandleFunc("/lose/", loseHandler)
+	http.HandleFunc("/", mainHandler)
 
 	go gameManager()
 
