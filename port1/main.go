@@ -6,8 +6,8 @@ import (
 	"html/template"
 	"io"
 	"io/ioutil"
-	"regexp"
 sc	"strconv"
+	"time"
 )
 
 
@@ -47,7 +47,30 @@ var killChan chan bool
 
 /* handles moves ;; uses channels ;; want requests like 0102b003 == black @ x=1 y=2 on ID 3*/
 func moveHandler(w http.ResponseWriter, req *http.Request) {
+	p := req.URL.Path;
+	pt := p[6:]
+	x := pt[:2]
+	y := pt[2:4]
+	c := pt[4]
+	id := pt[5:]
+	var err error
+	var m Move
+	m.X, err = sc.Atoi(x)
+	check(err)
+	m.Y, err = sc.Atoi(y)
+	check(err)
+	switch c {
+	case 'b': m.S = B
+	case 'w': m.S = W
+	default:
+		fmt.Println("Error: Invalid Move on ID " + id)
+	}
+	moveChan <- m
+	inst, err := sc.Atoi(id)
+	check(err)
+	reqChan <- inst
 
+	fmt.Printf("Placed a %c at %d,%d for ID %d\n", c, m.X, m.Y, inst)
 }
 
 func boardToState(b Board, w int) string {
@@ -90,6 +113,7 @@ func gameManager() {
 			}
 		case a = <- killChan:
 		default:
+			time.Sleep(10 * time.Millisecond)
 		}
 	}
 }
@@ -97,13 +121,9 @@ func gameManager() {
 /* handles a game instance */
 func gameHandler(w http.ResponseWriter, req *http.Request) {
 	width := 9
-	//need better instance parsing
-	//path := req.URL.Path;
-	//fmt.Println(path)
-	p := getPath(w, req)
-	var pb []byte = make([]byte, 1)
-	pb[0] = p[0]
-	inst, err := sc.Atoi(string(pb))
+	p := (req.URL.Path)[6:]
+
+	inst, err := sc.Atoi(p)
 	check(err)
 	fmt.Printf("Instance accessed: %d\n", inst)
 	// write page
@@ -152,19 +172,10 @@ func check(err error) {
 	}
 }
 
-/* This block modified from a Golang wiki entry on web applications by Google */
-var validPath = regexp.MustCompile("^/(main|white|black|game)/([a-zA-Z0-9]+)$")
-func getPath(w http.ResponseWriter, req *http.Request) string {
-	m := validPath.FindStringSubmatch(req.URL.Path)
-	if m == nil {
-		http.NotFound(w, req)
-	}
-	return m[2]
-}
 
 /* Portfolio One Go web game written in Golang by Sean Hinchee (Group 20) */
 func main() {
-	fmt.Println("Portfolio One: Go² by Sean Hinchee")
+	fmt.Println("Portfolio One: Go² by Sean Hinchee (Group 20)")
 
 	/* configure buffered channels, init http handlers, start concurrent game manager */
 	moveChan = make(chan Move, 5)
@@ -189,6 +200,8 @@ func main() {
 	for a {
 		select {
 		case a = <- killChan:
+		default:
+			time.Sleep(10 * time.Millisecond)
 		}
 	}
 }
