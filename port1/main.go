@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"html/template"
-	"io"
 	"io/ioutil"
 sc	"strconv"
 	"time"
@@ -19,12 +18,19 @@ const (
 	B
 )
 
+type Act int
+const (
+	Inactive Act = iota
+	Active
+)
+
 /* for template library */
 type Page struct {
 	Title string
 	Body  string
 	State string
 	Width int
+	ActiveList string
 }
 
 /* for updating the board */
@@ -35,7 +41,10 @@ type Move struct {
 }
 
 /* for tracking the board */
-type Board [][]Spot
+type Board struct {
+	B [][]Spot
+	A Act /* active or inactive */
+}
 
 
 /* global (gross) for using in instHandler to provide state */
@@ -43,6 +52,9 @@ var moveChan chan Move
 var boardChan chan Board
 var reqChan chan int
 var killChan chan bool
+var activeChan chan Act
+var strChan chan string
+var getActiveChan chan bool
 
 
 /* handles moves ;; uses channels ;; want requests like 0102b003 == black @ x=1 y=2 on ID 3*/
@@ -77,7 +89,7 @@ func boardToState(b Board, w int) string {
 	str := ""
 	for i := 0; i < w; i++ {
 		for j := 0; j < w; j++ {
-			switch b[i][j] {
+			switch (b.B)[i][j] {
 			case B: str += "b"
 			case W: str += "w"
 			case E: str += "e"
@@ -95,9 +107,9 @@ func gameManager() {
 	boards := make([]Board, max)
 
 	for i := 0; i < max; i++ {
-		boards[i] = make(Board, width)
+		(boards)[i].B = make([][]Spot, width)
 		for j := 0; j < width; j++ {
-			(boards[i])[j] = make([]Spot, width)
+			((boards)[i]).B[j] = make([]Spot, width)
 		}
 	}
 
@@ -107,11 +119,25 @@ func gameManager() {
 		case inst := <- reqChan:
 			select {
 			case move := <- moveChan:
-			/* rules checking occurs here ;; must add */
-			(boards[inst])[move.Y][move.X] = move.S
+				/* rules checking occurs here ;; must add */
+				(boards[inst]).B[move.Y][move.X] = move.S
+			case act := <- activeChan:
+				boards[inst].A = act
+				fmt.Printf("ID %d is now %v\n", inst, act)
 			default: boardChan <- boards[inst]
 			}
 		case a = <- killChan:
+		case <- getActiveChan:
+			str := ""
+
+			for i := 0; i < max; i++ {
+				if(boards[i].A == Active) {
+					str += (sc.Itoa(i) + ",")
+				}
+			}
+			str += "nil"
+
+			strChan <- str
 		default:
 			time.Sleep(10 * time.Millisecond)
 		}
@@ -126,6 +152,8 @@ func gameHandler(w http.ResponseWriter, req *http.Request) {
 	inst, err := sc.Atoi(p)
 	check(err)
 	fmt.Printf("Instance accessed: %d\n", inst)
+	activeChan <- Active
+	reqChan <- inst
 	// write page
 	var mainPage Page;
 	mainPage.Title = "Go²!"
@@ -138,10 +166,8 @@ func gameHandler(w http.ResponseWriter, req *http.Request) {
 	file, err := ioutil.ReadFile("templates/game.html")
 	fileS := string(file)
 	template.Must(t.Parse(fileS))
-	//t, err = t.ParseFiles("templates/game.html")
 	check(err)
 	t.Execute(w, &mainPage)
-	//err = templates.ExecuteTemplate(w, "templates/main.html", &mainPage)
 	check(err)
 
 	//io.WriteString(w, p)
@@ -149,7 +175,19 @@ func gameHandler(w http.ResponseWriter, req *http.Request) {
 
 /* handles the main screen */
 func mainHandler(w http.ResponseWriter, req *http.Request) {
-	io.WriteString(w, "Go²!")
+	var mainPage Page;
+	mainPage.Title = "Go²!"
+	mainPage.Body = "This is the main page!"
+	getActiveChan <- true
+	mainPage.ActiveList = <- strChan
+
+	t := template.New("Main")
+	file, err := ioutil.ReadFile("templates/main.html")
+	fileS := string(file)
+	template.Must(t.Parse(fileS))
+	check(err)
+	t.Execute(w, &mainPage)
+	check(err)
 }
 
 func blackHandler(w http.ResponseWriter, req *http.Request) {
@@ -164,6 +202,48 @@ func killHandler(w http.ResponseWriter, req *http.Request) {
 	killChan <- false
 	killChan <- false
 	killChan <- false
+}
+
+func winHandler(w http.ResponseWriter, req *http.Request) {
+	p := (req.URL.Path)[5:]
+	inst, err := sc.Atoi(p)
+	check(err)
+
+	var mainPage Page;
+	mainPage.Title = "Go²!"
+	mainPage.Body = "You won Game: " + p + "!"
+
+	t := template.New("Win")
+	file, err := ioutil.ReadFile("templates/win.html")
+	fileS := string(file)
+	template.Must(t.Parse(fileS))
+	check(err)
+	t.Execute(w, &mainPage)
+	check(err)
+
+	activeChan <- Inactive
+	reqChan <- inst
+}
+
+func loseHandler(w http.ResponseWriter, req *http.Request) {
+	p := (req.URL.Path)[6:]
+	inst, err := sc.Atoi(p)
+	check(err)
+
+	var mainPage Page;
+	mainPage.Title = "Go²!"
+	mainPage.Body = "You lost Game: " + p + "... better luck next time!"
+
+	t := template.New("Lose")
+	file, err := ioutil.ReadFile("templates/win.html")
+	fileS := string(file)
+	template.Must(t.Parse(fileS))
+	check(err)
+	t.Execute(w, &mainPage)
+	check(err)
+
+	activeChan <- Inactive
+	reqChan <- inst
 }
 
 func check(err error) {
@@ -181,7 +261,10 @@ func main() {
 	moveChan = make(chan Move, 5)
 	boardChan = make(chan Board, 5)
 	reqChan = make(chan int, 5)
-	killChan = make(chan bool, 2)
+	killChan = make(chan bool, 3)
+	activeChan = make(chan Act, 5)
+	strChan = make(chan string, 5)
+	getActiveChan = make(chan bool, 5)
 
 	http.HandleFunc("/main/", mainHandler)
 	http.HandleFunc("/black/", blackHandler)
@@ -189,6 +272,8 @@ func main() {
 	http.HandleFunc("/game/", gameHandler)
 	http.HandleFunc("/move/", moveHandler)
 	http.HandleFunc("/kill/", killHandler)
+	http.HandleFunc("/win/", winHandler)
+	http.HandleFunc("/lose/", loseHandler)
 
 	go gameManager()
 

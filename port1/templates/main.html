@@ -1,8 +1,13 @@
 <html>
 	<h1>{{.Title}}</h1>
 
-	<p>{{printf "%s" .Body}}</p>
+	<p>{{.Body}}</p>
 
 	<!--> Need form to choose a game </!-->
-	
+
 </html>
+
+<script>
+	var activeGames = {{.ActiveList}};
+
+</script>
