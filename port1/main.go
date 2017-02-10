@@ -14,15 +14,17 @@ sc	"strconv"
 /* enum for tracking the board ;; Black White Empty */
 type Spot int
 const (
-	B Spot = iota
+	E Spot = iota
 	W
-	E
+	B
 )
 
 /* for template library */
 type Page struct {
 	Title string
 	Body  string
+	State string
+	Width int
 }
 
 /* for updating the board */
@@ -33,7 +35,7 @@ type Move struct {
 }
 
 /* for tracking the board */
-type Board Spot[][]
+type Board [][]Spot
 
 
 /* global (gross) for using in instHandler to provide state */
@@ -43,9 +45,23 @@ var reqChan chan int
 var killChan chan bool
 
 
-/* handles game state requests ;; uses channels */
-func stateHandler(w http.ResponseWriter, req *http.Request) {
+/* handles moves ;; uses channels ;; want requests like 0102b003 == black @ x=1 y=2 on ID 3*/
+func moveHandler(w http.ResponseWriter, req *http.Request) {
 
+}
+
+func boardToState(b Board, w int) string {
+	str := ""
+	for i := 0; i < w; i++ {
+		for j := 0; j < w; j++ {
+			switch b[i][j] {
+			case B: str += "b"
+			case W: str += "w"
+			case E: str += "e"
+			}
+		}
+	}
+	return str
 }
 
 /* manages game board state & move validity ;; uses channels */
@@ -53,27 +69,25 @@ func gameManager() {
 	//up to 100 game instances ;; should be made expanding, not fixed
 	max := 100
 	width := 9 //width of board
-	boards := make(Board[], max)
+	boards := make([]Board, max)
 
-	for(i := 0; i < max; i++) {
+	for i := 0; i < max; i++ {
 		boards[i] = make(Board, width)
-		for(j := 0; j < width; j++) {
-			(boards[i])[j] = make(Spot[], width)
+		for j := 0; j < width; j++ {
+			(boards[i])[j] = make([]Spot, width)
 		}
 	}
 
 	a := true
-	for(a) {
+	for a {
 		select {
 		case inst := <- reqChan:
-			/* select here between move read and board write to identify origin */
-
-			/* updating a game instance */
-			move := <- moveChan
-
-			/* rules checking occurs here */
+			select {
+			case move := <- moveChan:
+			/* rules checking occurs here ;; must add */
 			(boards[inst])[move.Y][move.X] = move.S
-
+			default: boardChan <- boards[inst]
+			}
 		case a = <- killChan:
 		default:
 		}
@@ -82,6 +96,7 @@ func gameManager() {
 
 /* handles a game instance */
 func gameHandler(w http.ResponseWriter, req *http.Request) {
+	width := 9
 	//need better instance parsing
 	//path := req.URL.Path;
 	//fmt.Println(path)
@@ -95,6 +110,9 @@ func gameHandler(w http.ResponseWriter, req *http.Request) {
 	var mainPage Page;
 	mainPage.Title = "Go²!"
 	mainPage.Body = "Game page for instance: " + sc.Itoa(inst)
+	mainPage.Width = width
+	reqChan <- inst
+	mainPage.State = (boardToState(<- boardChan, width))
 
 	t := template.New("Game")
 	file, err := ioutil.ReadFile("templates/game.html")
@@ -125,6 +143,7 @@ func whiteHandler(w http.ResponseWriter, req *http.Request) {
 func killHandler(w http.ResponseWriter, req *http.Request) {
 	killChan <- false
 	killChan <- false
+	killChan <- false
 }
 
 func check(err error) {
@@ -148,7 +167,7 @@ func main() {
 	fmt.Println("Portfolio One: Go² by Sean Hinchee")
 
 	/* configure buffered channels, init http handlers, start concurrent game manager */
-	moveChan = make(chan Board, 5)
+	moveChan = make(chan Move, 5)
 	boardChan = make(chan Board, 5)
 	reqChan = make(chan int, 5)
 	killChan = make(chan bool, 2)
@@ -157,7 +176,7 @@ func main() {
 	http.HandleFunc("/black/", blackHandler)
 	http.HandleFunc("/white/", whiteHandler)
 	http.HandleFunc("/game/", gameHandler)
-	http.HandleFunc("/state/", stateHandler)
+	http.HandleFunc("/move/", moveHandler)
 	http.HandleFunc("/kill/", killHandler)
 
 	go gameManager()
@@ -167,7 +186,7 @@ func main() {
 	check(err)
 
 	a := true
-	for(a) {
+	for a {
 		select {
 		case a = <- killChan:
 		}
