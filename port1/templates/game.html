@@ -33,10 +33,11 @@ var drawLine = function(x0, y0, x1, y1) {
 // horizontal draw
 var x0 = 18;
 var y0 = 18;
-var x1 = 306;
+//var x1 = 306;
+var x1 = 34*boardWidth;
 var y1 = 18;
 
-for(i = 0; i < 9; i++, y0+=36, y1+=36) {
+for(i = 0; i < boardWidth; i++, y0+=36, y1+=36) {
 	drawLine(x0,y0,x1,y1);
 }
 
@@ -44,9 +45,10 @@ for(i = 0; i < 9; i++, y0+=36, y1+=36) {
 var x0 = 18;
 var y0 = 18;
 var x1 = 18;
-var y1 = 306;
+//var y1 = 306;
+var y1 = 34*boardWidth;
 
-for(j = 0; j < 9; j++, x0+=36, x1+=36) {
+for(j = 0; j < boardWidth; j++, x0+=36, x1+=36) {
 	drawLine(x0,y0,x1,y1);
 }
 
