@@ -1,0 +1,71 @@
+<html>
+<head>
+<!-- 
+  THE PURPOSE OF THIS EXAMPLE IS TO SHOW HOW FUNCTIONS USE THE "THIS"
+  OBJECT.
+
+  BASICALLY - "this" is whatever object is on LEFT-HAND SIDE OF "."
+  operator
+
+  ALSO, HERE WE SHOW HOW TO DECLARE AN OBJECT IN JS
+
+  NOTE HOW THE THIS OBJECT FOR A FUNCTION CAN BE CHANGED TO SOME 
+  TOTALLY DIFFERENT OBJECT!
+
+  YOU NEED TO TRY THE EXAMPLES
+
+-->
+
+</head>
+
+<body>
+<h1>
+
+<script> 
+
+// BY DEFAULT WINDOW IS THE "THIS OBJECT" FOR FUNCTIONS
+window.color = "red";
+
+// AN OBJECT DECLARATION IS SIMPLE AN ASSOCIATIVE ARRAY IN JS
+// JUST A LIST OF KEY:VALUE TUPLES
+// VALUES CAN BE FUNCTIONS OR OTHER TYPES
+// Here o is an object that has three attributes. Two are functions.
+
+var o = {color: "blue",
+         getColor: function() {
+           return function() {
+             document.write(this.color+"<br>");
+           }
+         },
+         prtColor: function() {
+           var that = this;
+           return function() {
+             document.write(that.color+"<br>");
+           }
+         }
+        };
+
+function sayColor() { document.write(this.color+"<br>"); }
+
+// TODO: WHAT WILL THE BELOW PRINT IF YOU UNCOMMENT? WHY?
+// TRY IT! Here this will be the WINDOW object
+ sayColor();  
+
+// TODO: WHAT WILL THE BELOW PRINT IF YOU UNCOMMENT? WHY?
+// TRY IT! Here, we o is the object
+   o.sayColor = sayColor;
+   o.sayColor();
+
+// TODO: WHAT WILL THE BELOW PRINT IF YOU UNCOMMENT? WHY?
+// TRY IT! Here we invoke the returned function using the window object
+ o.getColor()();
+
+// TODO: WHAT WILL THE BELOW PRINT IF YOU UNCOMMENT? WHY?
+// TRY IT! Here too, we invoke the returned function using the window
+// object.
+ o.prtColor()(); 
+
+
+</script>
+</body>
+</html>

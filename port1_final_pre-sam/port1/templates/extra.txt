@@ -1,0 +1,507 @@
+	for(j=0;j<Y;j++){
+		for(i=0;i<X;i++){
+			if((i==25&&j==25) || (i==50&&j==50)){
+				printf("\x1B[31m");
+				printf("%1c",'I');
+				printf("\x1B[0m");
+			}else if(d.newdist[j][i] < INT_MAX){
+				printf("%1c",(d.newdist[j][i]%10)+48);
+			} else{
+				printf("%1c",' ');
+			}
+		}
+		printf("\n");
+	}
+	
+	
+	
+	
+	//remove pieces with 0 liberties
+function checkCapture(){
+	for(j=0; j<boardWidth; j++){
+		for(i=0; i<boardWidth; i++){
+			if(boardState.charAt(j*boardWidth+i)!='e'){
+				liberties2 = numLiberties(i,j);
+				if(liberties2.libertiesf == 0 && liberties2.liberties == 0){
+					//console.log("Libs: "+numLiberties(i,j).libertiesf + " "+ numLiberties(i,j).libertiesf);
+					boardState = boardState.replaceAt(j*boardWidth+i, 'e');
+					placePiece(i, j, 'e');
+					load();
+				}
+			}
+		}
+	}
+}
+
+
+
+//find the number of liberties
+function numLiberties(x, y){
+	liberties = 4;
+	libertiesf = 0;
+	libertiese = 0;
+	libertiesempty = 0;
+	samePiece =  boardState.charAt(y*boardWidth+x);
+	opPiece = samePiece=='b'?'w':'b';
+	cordT = (y-1);
+	cordBottom = (y+1);
+	cordLeft = (x-1);
+	cordRight = (x+1);
+	topC = boardState.charAt(cordT*boardWidth+x);
+	bottomC = boardState.charAt(cordBottom*boardWidth+x);
+	leftC = boardState.charAt(y*boardWidth+cordLeft);
+	rightC = boardState.charAt(y*boardWidth+cordRight);
+	//console.log(x + ", " + y + " " +samePiece);
+	if(cordT>=0){
+		if (topC != 'e'){
+			liberties--;
+		}
+		if (topC == samePiece){
+			libertiesf++;
+		}
+		if (topC == opPiece){
+			libertiese++;
+		}
+		if (topC == 'e'){
+			libertiesempty++;
+		}
+	} else{
+		liberties--;
+	}
+	if(cordBottom<boardWidth){
+		if (bottomC != 'e'){
+			liberties--;
+		}
+		if (bottomC == samePiece){
+			libertiesf++;
+		}
+		if (bottomC == opPiece){
+			libertiese++;
+		}
+		if (bottomC == 'e'){
+			libertiesempty++;
+		}
+	} else{
+		liberties--;
+	}
+	if(cordLeft>=0){
+		if (leftC != 'e'){
+			liberties--;
+		}
+		if (leftC == samePiece){
+			libertiesf++;
+		}
+		if (leftC == opPiece){
+			libertiese++;
+		}
+		if (leftC == 'e'){
+			libertiesempty++;
+		}
+	} else{
+		liberties--;
+	}
+	if(cordRight<boardWidth){
+		if (rightC != 'e'){
+			liberties--;
+		}
+		if (rightC == samePiece){
+			libertiesf++;
+		}
+		if (rightC == opPiece){
+			libertiese++;
+		}
+		if (rightC == 'e'){
+			libertiesempty++;
+		}
+	} else{
+		liberties--;
+	}
+	return {
+liberties: liberties,
+libertiesf: libertiesf,
+libertiese: libertiese,
+libertiesempty: libertiesempty
+	};
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+
+<body>
+<p>{{.Title}}</p>
+
+<p>{{.Body}}</p>
+</body>
+Select a piece:</br>
+<img src="/white/white.png" onclick="setCurrent('w')" id = "w" style = "padding: 5px;"/>
+<img src="/black/black.png" onclick="setCurrent('b')" id = "b" style = "padding: 5px;"/>
+</br>
+</br>
+<canvas id="maingame" width="0" height="0"/>
+</br>
+<a href="/">Home</a>
+</html>
+
+<script>
+
+var blackPieces = {{.Bp}};
+var whitePieces = {{.Wp}};
+var boardWidth = {{.Width}};
+var boardState = "{{.State}}";
+var boardSearch = boardState;
+var instance = {{.Instance}};
+var whiteImg = new Image();
+whiteImg.src = "/white/white.png"
+var blackImg = new Image();
+blackImg.src = "/black/black.png"
+var current = '';
+var cap = 'C';
+var empt = 'E';
+var canvas = document.getElementById("maingame");
+canvas.width = boardWidth*36+18;
+canvas.height = boardWidth*36+18;
+var ctx = canvas.getContext("2d");
+ctx.fillStyle = "#FF0000";
+
+var offset = 36;
+load();
+
+
+//draw all the pieces
+function load(){
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+	var drawLine = function(x0, y0, x1, y1) {
+		ctx.moveTo(x0,y0);
+		ctx.lineTo(x1,y1);
+		ctx.stroke();
+	}
+
+	// horizontal draw
+	var x0 = offset/2;
+	var y0 = offset/2;
+	var x1 = offset*(boardWidth) - offset/2;
+	var y1 = offset/2;
+
+	for(i = 0; i < boardWidth; i++, y0+=offset, y1+=offset) {
+		drawLine(x0,y0,x1,y1);
+	}
+
+	// vertical draw
+	var x0 = offset/2;
+	var y0 = offset/2;
+	var x1 = offset/2;
+	var y1 = offset*(boardWidth) - offset/2;
+
+	for(j = 0; j < boardWidth; j++, x0+=offset, x1+=offset) {
+		drawLine(x0,y0,x1,y1);
+	}
+
+
+	//draw the pieces
+	for(i=0; i<boardState.length;i++)
+	{
+		xcord = (i%(boardWidth))*offset;
+		ycord = (Math.floor(i/(boardWidth)))*offset;
+		if(boardState[i] == 'b'){
+			ctx.drawImage(blackImg, xcord, ycord);
+		} else if (boardState[i] == 'w'){
+			ctx.drawImage(whiteImg, xcord, ycord);
+		}
+	}
+
+}
+
+
+//get mouse position on canvas
+var clicked = function getMousePos(event) {
+	var totalOffsetX = 0;
+	var totalOffsetY = 0;
+	var canvasX = 0;
+	var canvasY = 0;
+	var currentElement = this;
+
+	do{
+		totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
+		totalOffsetY += currentElement.offsetTop - currentElement.scrollTop;
+	}while(currentElement = currentElement.offsetParent);
+
+	canvasX = event.pageX - totalOffsetX;
+	canvasY = event.pageY - totalOffsetY;
+	place(canvasX,canvasY);
+	
+}
+//look for when canvas is clicked
+canvas.addEventListener('click', clicked, false);
+
+//replace a character in a string at given index
+String.prototype.replaceAt=function(index, character) {
+	return this.substr(0, index) + character + this.substr(index+character.length);
+}
+
+//called from canvas click: place a piece on the board
+function place(x, y){
+	x = Math.floor((x)/offset);
+	y = Math.floor((y)/offset);
+	if((boardState.charAt(x+y*boardWidth)!='e' || !current)){
+		return;
+	}
+	boardState = boardState.replaceAt(y*boardWidth+x, current);
+	if(x>=boardWidth || y>=boardWidth){
+		//console.log("cant place " + numLiberties(x, y).liberties);
+		boardState = boardState.replaceAt(y*boardWidth+x, 'e');
+		return;
+	}
+	//console.log("can place " + numLiberties(x, y).liberties);
+	placePiece(x, y, current);
+	checkCapture();
+	console.log(boardSearch);
+	load();
+}
+
+//Depth fisrt search for capture
+function DFS(xs, ys){
+	var is,js;
+	var cpieceType =  boardSearch.charAt(ys*boardWidth+xs);
+	var cpieceOp = boardSearch.charAt(ys*boardWidth+xs)=='w'?'b':'w';
+	var repChar = cpieceType.toUpperCase();
+	var neighborD = 4;
+
+	if(cpieceType == 'b' || cpieceType  == 'w'){
+		boardSearch = boardSearch.replaceAt(ys*boardWidth+xs, repChar);
+		loop:
+		for(js=ys-1;js<ys+2;js++){
+			if(js<0 || js>=boardWidth){
+				neighborD--;
+				continue;
+			}
+			for(is=xs-1;is<xs+2;is++){
+				if(is<0 || is>=boardWidth){
+					neighborD--;
+					continue;
+				}
+				if((js==ys-1 && is!=xs) || (js==ys+1 && is!=xs) || (js==ys && is==xs)){
+					continue;
+				}
+				var nextChar = boardSearch.charAt(js*boardWidth+is);
+				var newChar = ;
+				
+				if(cpieceType == newChar){
+					//console.log(boardSearch);
+					DFS(is, js);
+					newChar = boardSearch.charAt(js*boardWidth+is);
+				}
+				if(nextChar.toLowerCase() == cpieceOp){
+					neighborD--;
+				} else{
+				if (newChar==cap){
+						repChar = cap;
+						console.log("CApture!");
+						break loop;
+				}
+				if (newChar==empt){
+						repChar = empt;
+						console.log("Empty!");
+						break loop;
+				}
+				}
+			}
+		}
+		if(neighborD == 0){
+			repChar = cap;
+		}
+		console.log("out! " + xs + ", "+ ys + " " + neighborD);
+		boardSearch = boardSearch.replaceAt(ys*boardWidth+xs, repChar);
+	}
+}
+
+//remove pieces with 0 liberties
+function checkCapture(){
+	boardSearch = boardState;
+	for(j=0; j<boardWidth; j++){
+		for(i=0; i<boardWidth; i++){
+			DFS(i, j);
+		}
+	}
+}
+
+//send the place piece to the server
+function placePiece(x, y, pieceType){
+	path = "http://" + location.host + '/move/'+("0" + x).slice(-2) + "" + ("0" + y).slice(-2)+ pieceType+ ("00" + instance).slice(-3);
+	xmlHttp = new XMLHttpRequest();
+	xmlHttp.open( "GET", path, false ); // false for synchronous request
+	xmlHttp.send( null );
+}
+
+
+//select the piece player clicked
+function setCurrent(cur){
+	current = cur;
+	document.getElementById(cur).style = "border-style: dotted; border-width: 5px;";
+	notcur = ((cur=='b')?"w":"b");
+	document.getElementById(notcur).style ="padding: 5px;";
+}
+
+//win the game
+function win() {
+	location.href = '/win/'+boardState;
+}
+
+//lose the game
+function lose() {
+	location.href = '/lose/'+boardState;
+}
+
+//check if game is updated
+var check = function() {
+	xmlHttp = new XMLHttpRequest();
+	path = "http://" + location.host + '/string/'+instance;
+	xmlHttp.open( "GET", path, false ); // false for synchronous request
+	xmlHttp.send( null );
+	if(xmlHttp.responseText != boardState){
+		boardState = xmlHttp.responseText;
+		load();
+	}
+}
+
+var timer = setInterval(check, 1000);
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function DFS(xs, ys){
+	var is,js;
+	var cpieceType =  boardSearch.charAt(ys*boardWidth+xs);
+	var cpieceOp = boardSearch.charAt(ys*boardWidth+xs)=='w'?'b':'w';
+	var repChar = cpieceType.toUpperCase();
+	var neighbors = "";
+
+	if(cpieceType == 'b' || cpieceType  == 'w'){
+		boardSearch = boardSearch.replaceAt(ys*boardWidth+xs, repChar);
+			for(js=ys-1;js<ys+2;js++){
+				if(js<0 || js>=boardWidth){
+					continue;
+				}
+				for(is=xs-1;is<xs+2;is++){
+					if((js==ys-1 && is!=xs) || (js==ys+1 && is!=xs) || (js==ys && is==xs)){
+						continue;
+					}
+					if(is<0 || is>=boardWidth){
+						continue;
+					}
+					var nextChar = boardSearch.charAt(js*boardWidth+is);
+					DFS(is, js);
+					var newChar = boardSearch.charAt(js*boardWidth+is);
+					if (nextChar == 'e'){
+						repChar = (cpieceType=='w'?emptw:emptb);
+						console.log("Empty!");
+					}
+					if (nextChar==emptw || nextChar==emptb){
+						repChar = (cpieceType=='w'?emptw:emptb);
+						console.log("Empty Chain!");
+					}
+					
+					
+					if(cpieceType == nextChar){
+						if(newChar==capw || newChar==capb){
+								console.log("CApture Chain!");
+						}
+					}
+					neighbors+=newChar;
+				}
+			}
+			console.log(xs+ ", " + ys+ neighbors);
+			if((neighbors.includes(cpieceType=='w'?capw:capb)) && !(neighbors.includes(cpieceType=='w'?emptw:emptb) || neighbors.includes("e"))){
+				repChar = (cpieceType=='w'?capw:capb);
+				placePiece(xs, ys, 'e');
+				console.log("CApture!");
+			}
+		//console.log("out! " + xs + ", "+ ys + " " + neighborD);
+		boardSearch = boardSearch.replaceAt(ys*boardWidth+xs, repChar);
+	}
+}

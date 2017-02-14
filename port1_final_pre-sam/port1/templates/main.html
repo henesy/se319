@@ -1,0 +1,56 @@
+<html>
+	<h1>{{.Title}}</h1>
+
+	<p>{{.Body}}</p>
+<form id="Select" action="" >
+  <fieldset>
+    <legend>Select A Game Room</legend>
+	<p id="FGame">
+		<label>Pick A Room: </label> 
+			<select name="Game" id="Game">
+				<option selected="true" style="display:none;">Select Room</option>
+			</select>
+	</p>
+	<p>
+      <input type="button" id="submit" name="submit" value="Continue" onclick="validate()"/>
+    </p>
+  </fieldset>
+  	<p>
+     Modified Instructions:
+		<p>
+		Game pieces can not be placed in spots with 0 liberties
+		</p>
+    </p>
+</form>
+	<!--> Need form to choose a game </!-->
+
+</html>
+
+<script>
+	var activeGames = {{.ActiveList}};
+	var stringArr = activeGames.split(',').map(Number);
+	var form = document.getElementById("Game");
+	
+	
+	for(var i=0; i<101;i++){
+		newList = document.createElement("option");
+		isOpen = stringArr.indexOf(i)>-1;
+		newList.setAttribute("id", i);
+		newList.setAttribute("value", i);
+		newList.setAttribute("style", isOpen?"color: red;":"color: green;");
+		newList.innerHTML = i + (isOpen?" Spectate": " Join");
+		form.appendChild(newList);
+	
+	}
+	form.onchange = function() {
+		form.setAttribute("style", form.options[form.selectedIndex].getAttribute("style")=="color: red;"?"color: red;":"color: green;");
+		console.log("change");
+	}
+	
+	
+	function validate() {
+		var num = document.forms["Select"]["Game"].value;
+		location.href = '/game/'+num;
+	}
+
+</script>

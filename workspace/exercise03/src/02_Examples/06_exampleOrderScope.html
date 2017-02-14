@@ -1,0 +1,78 @@
+<html>
+<head>
+<!-- 
+  THE PURPOSE OF THIS EXAMPLE IS TO SHOW TWO THINGS:
+  a) The order in which js scripts are run and pages are rendered
+  b) understand local and global variables in js
+
+  Note that the onload action happens after all external files have been
+  loaded. Rendering of html is usually stopped until js scripts are
+  executed. Rendering can occur when all of html is parsed.
+
+  Note that although use of var for a variable may occur AFTER a use of
+  the variable - it is STILL considered a LOCAL variable.
+  Take the example of i in function test(). It is set to 3, and then
+  a var is used. It is a local variable and the print of i OUTSIDE test
+  shows 2 (the global variable result).
+
+  The scope of variables is function OR global. Unlike Java, there is 
+  NO block scope in js.
+
+-->
+
+
+<script>  
+// This code is INSIDE the HEAD SECTION OF THE HTML FILE
+
+// TODO: IT IS FUN TO TRY TO MAKE A LIST OF WHAT WILL GET SHOWN ON
+// SCREEN AND IN WHAT ORDER.
+// FIGURE OUT WHAT IS HAPPENING.
+
+i = 1;   // THIS i IS A GLOBAL VARIABLE
+
+alert("In head: " + i);
+
+</script>
+</head>
+
+<body onload="test('test called after load completed!');">
+
+Hello 1!
+
+<script> 
+// This code is INSIDE the BODY SECTION OF THE HTML FILE
+
+i++; 
+alert("script1: value of i before test() run: " + i);
+test("test called before test declared");
+alert("script1: value of i after test() run: " + i);
+
+alert ("script1: value of j after test() run: " + j);
+
+function test(s) {
+  alert ("inside test method: s is " + s); 
+  alert ("inside test method: i is " + i); // THIS i is a LOCAL VARIABLE
+  alert ("inside test method: k is " + k); // k is a LOCAL VARIABLE
+  i = 3;  // THIS i is a LOCAL VARIABLE
+  var i = 5;  // THIS i is a LOCAL VARIABLE
+  alert ("inside test method: i is (a local variable) " + i);
+  j = 4; // j IS A GLOBAL VARIABLE (no var used)
+
+  for (var k = 0; k < 2; k++) { }
+  alert ("inside test method: before return k is " + k);
+} // end of test method
+
+</script>
+
+Hello 2!
+
+<script> 
+  alert ("script2: i is " + i);
+  k = k+1;
+  alert ("script2: k is " + k);
+</script>
+
+Hello 3!
+
+</body>
+</html>

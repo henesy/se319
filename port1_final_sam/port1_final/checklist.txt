@@ -1,0 +1,18 @@
+Concurrent programming in the form of:
+- chan (Channel) usage for inter-thread communication
+- go (Fork) usage for multi-threading
+
+Error checking/debugging in the form of:
+- err (Error) variables and checking
+
+HTML/JS advancement of concepts:
+- script blocks within game.html and main.html
+- template (Go interaction with JS/HTML5) being used to talk from Go backend to JS frontend
+
+HTTP server hosting/independence:
+- http library utilized withing Golang
+- game board size change with manipulation of one variable (boardWidth) Go/server side
+
+Custom API design in the form of:
+- *Handler functions which independently manage HTTP requests
+

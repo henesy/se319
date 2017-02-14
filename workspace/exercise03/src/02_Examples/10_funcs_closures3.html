@@ -1,0 +1,44 @@
+<html>
+<head>
+<!-- 
+  THE PURPOSE OF THIS EXAMPLE IS TO SHOW HOW YOU HAVE TO BE CAREFUL
+  YOU UNDERSTAND WHAT "ENVIRONMENT" MAKES UP A CLOSURE!
+-->
+
+</head>
+
+<body>
+<h1>
+
+
+
+<script> 
+
+function createThis () {
+   var result = new Array();
+   var i = 0;
+     result[i] = function() { return i; }
+     i++;
+     result[i] = function() { return i; }
+   }
+
+   return result; // return an array of functions
+};
+
+x = createThis();
+
+// NOTE THAT RESULT ARRAY STORES CLOSURES (AND NOT JUST FUNCTIONS)
+// TODO: WHAT WILL HAPPEN IF YOU UNCOMMENT THE BELOW LINES? WHY?
+// TRY IT!
+//document.write(createThis()[0] + "<br>");
+document.write(x[0]() + "<br>");
+document.write(x[1]() + "<br>");
+
+// Note that function createThis has exited a long time back.
+// Its local variables and arguments are gone
+// The function returned by createThis is a CLOSURE.
+// It includes the code + the environment that it was created in
+
+</script>
+</body>
+</html>

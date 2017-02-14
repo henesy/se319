@@ -1,0 +1,51 @@
+<html>
+<head>
+<!-- 
+  THE PURPOSE OF THIS EXAMPLE TO SHOW JAVASCRIPT (JS) IS LOOSELY TYPED 
+-->
+</head>
+
+<body>
+<script> 
+
+  // TODO: OBSERVE that 
+  //  (a) we can use the keyword var to declare a variable
+  //  BTW, this is useful when we declare local variables in functions.
+  //  (b) we can also initialize a variable and use it (without var)
+  //  (c) the type depends on the value and determined at run-time
+  //  (d) the type can change at run-time
+
+  document.write("<h1>Loosely Typed!<br>");
+  document.write("Also, same variable can hold different types at different times </h1><br>");
+
+  console.log("Also, same variable can hold different types at different times </h1><br>");
+
+  // THE TYPEOF operator is useful. JS has SIX types: 
+  // undefined, string, boolean, number, object, function.
+  var x;
+  document.write("variable x has type " + typeof x + "<br>");
+
+  noVarName = "tom"; // declared and initialized. becomes global
+  document.write("variable noVarName has type " + typeof noVarName  + "<br>");
+
+  noVarName = 12; // new type is now number
+  document.write("Now variable noVarName has type " + typeof noVarName + "<br>");
+
+  noVarName = true;
+  document.write("Now variable noVarName has type " + typeof noVarName + "<br>");
+  
+  // ARRAYS HAVE TYPE OBJECTS. THEY HAVE METHODS LIKE PUSH/POP ETC  
+  noVarName = [10,20,30]; // arrays are objects
+  document.write("Now variable noVarName has type " + typeof noVarName + "<br>");
+
+  // THIS IS ONE WAY TO CREATE AN OBJECT IN JS
+  noVarName = {"name": "Tim", "age": 100};
+  document.write("Now variable noVarName has type " + typeof noVarName + "<br>");
+
+  noVarName = function () {};
+  document.write("Now variable noVarName has type " + typeof noVarName + "<br>");
+
+  
+</script>
+</body>
+</html>

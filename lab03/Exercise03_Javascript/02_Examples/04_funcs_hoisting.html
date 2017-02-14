@@ -1,0 +1,63 @@
+<html>
+<head>
+<!-- 
+  TWO THINGS: FUNCTION DECLARATIONS AND FUNCTION EXPRESSIONS.
+
+  FUNCTION DECLARATIONS ARE HOISTED AUTOMATICALLY.
+  FUNCTION EXPRESSIONS MUST BE ASSIGNED FIRST BEFORE THEY CAN BE USED.
+  We can also have NAMED FUNCTION EXPRESSIONS
+
+  THE PURPOSE OF THIS EXAMPLE IS TO SHOW HOW FUNCTION DECLARATION
+  HOISTING WORKS.
+
+  ALSO, NOTE HOW FUNCTIONS CAN BE USED IN EVENT HANDLERS 
+  (because they are executed AFTER the function expression declarations are executed 
+  - although physically these declarations may be placed later in the
+  code than the function use in event handlers).
+
+  ONE PROBLEM WITH FUNCTION EXPRESSIONS IS THAT IS THAT IF USED
+  BEFORE FUNCTION EXPRESSION JS HAS EXECUTED - thats an error
+
+-->
+</head>
+
+<body>
+<input type="button" value="ClickMe" onclick="sub(100,20);" />
+
+<script> 
+
+// FUNCTION DECLARATION HOISTING  
+
+// WHY DOES THIS WORK? FUNCTION DECLARATION HOISTING!
+document.write("<h1> using add() before declaring it "
+                    + add(10,20) + "</h1><br>");
+console.log("Testing!");
+// WAY ONE: FUNCTION DECLARATION
+function add (num1, num2) { return num1 + num2; }
+
+
+// ERROR
+// TODO: UNCOMMENT THE NEXT LINE. DOES THIS WORK? WHY?
+//   sub(10,20);
+
+// WAY TWO: FUNCTION EXPRESSIONS
+var sub = function(num1, num2) {
+   document.write("<h1> sub  "+ (num1 -  num2) + "</h1><br>");
+}
+
+// TODO: CLICK ON CLICKME button - see how sub indeed works
+// The reason is that this js script is being run BEFORE the
+// DOM is being set up by the browser.
+
+// TODO: UNCOMMENT THE NEXT LINE. DOES THIS WORK? WHY?
+   sub(10,20);
+
+// WAY THREE: NAMED FUNCTION EXPRESSIONS
+// Here we assign mpy to a named function expression f instead
+// of to an anonymous function
+var mpy = function f(a,b) { return a*b; };
+document.write("<h1>" + mpy(10,20) + "</h1><br>");
+
+</script>
+</body>
+</html>

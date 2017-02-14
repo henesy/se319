@@ -1,0 +1,31 @@
+<html>
+<head>
+<!--
+  The purpose is to show how objects in javascript are like associative
+  arrays.
+
+  Arrays are really objects in js.
+
+-->
+</head>
+
+<body>
+<h1>
+
+<script> 
+
+var o = {color: "blue" };
+
+var c = 'color';
+document.write (o.color + "<br>"); // objects are like associative arrays
+document.write (o[c] + "<br>"); // objects are like associative arrays
+document.write (o.length + "<br>"); // objects not really an array!
+
+var o = [ 'a', 'b', 'c']
+document.write (o['length'] + "<br>");
+document.write (o.length + "<br>"); //arrays are objects
+
+
+</script>
+</body>
+</html>
