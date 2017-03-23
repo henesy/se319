@@ -1,8 +1,7 @@
 all: main.go
 	go build
 
-clean: port1
+clean: 
 	rm port1
 	rm tmp/*
-
 
