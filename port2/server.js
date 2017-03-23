@@ -9,21 +9,21 @@ var welcome_js = fs.readFileSync("./welcome_js.html");
 
 var version = "v0.0.1";
 
-function getPath(request) {  
-  var path = url.parse(request.url).pathname;    
+function getPath(request) {
+  var path = url.parse(request.url).pathname;
   return path;
 }
 exports.getPath = getPath;
 
-http.createServer(function(req, res) {  
+http.createServer(function(req, res) {
 	/* primary game logic */
 	var reqData = "";
 
 	if(req.method === "GET") {
 		/* request for a page */
 		res.writeHead(200, {"Content-Type": "text/html"});
-		//response.writeHead(200, {"Content-Type": "text/plain"});  
-		//response.write("Hello from the Node.js server!");  
+		//response.writeHead(200, {"Content-Type": "text/plain"});
+		//response.write("Hello from the Node.js server!");
 		res.write(html);
 		res.end();
 	} else if(req.method === "POST") {
@@ -32,14 +32,14 @@ http.createServer(function(req, res) {
 		req.on("data", function(data) {
 			reqData += data;
 		});
-		
+
 		req.on("end", function() {
 
 			var postData = qs.parse(reqData);
 
 			/* decide what page to load */
 			if(postData.ordo == "welcome") {
-		
+                // welcome page
 				res.writeHead(200, {"Content-Type": "text/html"});
 				var js_string = `
 					<script>
@@ -47,8 +47,17 @@ http.createServer(function(req, res) {
 				js_string += version;
 
 				res.end("<html><h3>Page for: " + postData.name + "!</h3>" + welcome + js_string + welcome_js);
-			
-			} else {
+
+			} else if(postData.ordo == "paint") {
+                // painting page
+                res.writeHead(200, {"Content-Type": "text/html"});
+                var js_string = `
+                    <script>
+                    var session = `;
+                js_string += postData.session;
+
+                res.end("<html><h3>Page for session: " + postData.session + "!</h3>" + welcome + js_string + welcome_js);
+            } else {
 				res.writeHead(200, {"Content-Type": "text/plain"});
 				res.end("ERROR!");
 			}
@@ -57,4 +66,3 @@ http.createServer(function(req, res) {
 }).listen(8080);
 
 console.log('Server is listening to http://localhost/ on port 8080…');
-
