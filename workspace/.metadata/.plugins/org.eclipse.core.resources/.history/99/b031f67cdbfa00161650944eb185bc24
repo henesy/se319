@@ -1,0 +1,20 @@
+<html>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="./booksLibrary.js"></script>
+
+<!-- ...?librarian -->
+<div class="librarian">
+<h5>Librarian View</h5>
+
+
+</div>
+
+<!-- ...?undergraduate -->
+<div class="undergrad">
+<h5>Undergraduate View</h5>
+
+
+</div>
+
+
+</html>

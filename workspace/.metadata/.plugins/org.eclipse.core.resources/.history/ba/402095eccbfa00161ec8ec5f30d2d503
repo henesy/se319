@@ -1,0 +1,18 @@
+<html>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="login.js"></script>
+
+<div id="login">
+<form id="loginform" method="post" name="myform">
+<label>User Name :</label>
+<input type="text" name="username" id="username"/>
+<br>
+<label>Password :</label>
+<input type="password" name="password" id="password"/>
+<input type="button" value="Login" id="submit" onclick="validate()"/>
+</form>
+</div>
+
+
+
+</html>

@@ -1,0 +1,18 @@
+<html>
+<body>
+
+
+<h1><p id="header">COUNTDOWN IN SECONDS</p>
+<p id="here"></p> </h1>
+<input type="button" onclick="clearInterval(timer)" value="STOP COUNTDOWN">
+
+
+<script> 
+  var i = 100;
+  var timer = setInterval(function() { 
+                  document.getElementById("here").innerHTML = i--;
+                }, 1000)
+</script>
+
+</body>
+</html>

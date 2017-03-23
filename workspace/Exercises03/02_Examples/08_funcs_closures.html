@@ -1,0 +1,51 @@
+<html>
+<head>
+<!-- 
+  THE PURPOSE OF THIS EXAMPLE IS TO SHOW CLOSURES
+  THESE ARE FUNCTIONS + STORED-ENVIRONMENT
+
+  DO NOTE THAT JAVA/C++ DOES NOT HAVE THE NOTION OF FIRST CLASS
+  FUNCTIONS AND THEREFORE NO CLOSURES EITHER
+-->
+</head>
+
+<body>
+<h1>
+
+
+
+<script> 
+name = "Tom Thumb";
+
+function createThis (arg) {
+   return function (num) {
+     return num + " " + arg +  " " + name;
+     // arg is in environment, name is global
+   } ;
+};
+
+x = createThis ("hi"); // x is a closure
+
+y = createThis ("bye"); // y is a closure
+
+
+// TODO: WHAT WILL PRINT IF YOU UNCOMMENT THESE LINES?
+// WHY? TRY IT!
+// document.write(x(1) + "<br>");
+// document.write(x(5) + "<br>"); 
+
+// document.write(y(1) + "<br>");
+// document.write(y(5) + "<br>");
+
+// Note that function createThis has exited a long time back.
+// Its local variables and arguments are gone
+//
+// The function returned by createThis is a CLOSURE.
+// It includes the code + the environment that it was created in
+// That environment includes the local variable NAME whose value was
+// set at the time of calling createThis function.
+
+
+</script>
+</body>
+</html>

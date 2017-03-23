@@ -1,0 +1,71 @@
+// Group 20 
+
+
+class Library {
+	constructor() {
+		this.numBooks = 25; // initial value
+		//loop
+	}
+}
+
+
+class Shelf {
+	// can be type Art, Science, Sport, or Literature
+	constructor() {
+		this._Books = [];
+	}
+}
+
+
+//unsure if necessary
+class ArtShelf extends Shelf {
+	
+}
+
+class ScienceShelf extends Shelf {
+	
+}
+
+class SportShelf extends Shelf {
+	
+}
+
+class LiteratureShelf extends Shelf {
+	
+}
+
+
+class Book {
+	constructor() {
+		this.BookID = Math.floor((Math.random() * 999) + 100); //3 digit ID
+		
+		//move to local storage (?)
+		this.borrowedBy = "nil";
+		this.available = 1;
+	}
+}
+
+
+//primary operative
+
+$(document).ready(function() {
+	var view = window.location.search.substring(1);
+
+	$(".librarian").hide();
+	$(".undergrad").hide();
+	
+	if(view.indexOf("librarian") != -1) {
+		$(".librarian").show();
+	} else if(view.indexOf("undergraduate") != -1) {
+		$(".undergrad").show();
+	} else {
+		alert("Invalid Session!");
+		window.location.replace("./login.html");
+	}
+	
+});
+
+
+
+
+

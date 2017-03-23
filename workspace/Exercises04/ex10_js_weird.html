@@ -1,0 +1,21 @@
+<html>
+<head>
+<script>
+
+f = function() {
+
+  if (true) { function g(){return 1} }
+  else { function g() {return 2 }};
+
+  function g() { return 3 } ;
+  return g();
+  function g() { return 4 };
+}
+
+console.log(f());
+
+</script>
+</head>
+<body>
+</body>
+</html>

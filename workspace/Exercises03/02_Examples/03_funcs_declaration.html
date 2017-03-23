@@ -1,0 +1,44 @@
+<html>
+<head>
+<!--
+  THE PURPOSE OF THIS EXERCISE IS TO SHOW
+  a) The two ways of declaring functions
+     FUNCTION DECLARATIONS
+     FUNCTION EXPRESSIONS
+  b) variables can store pointer to functions.
+-->
+</head>
+
+<body>
+<script> 
+
+// WAY ONE: FUNCTION DECLARATION
+function add (num1, num2) {
+ return num1 + num2;
+}
+
+// WAY TWO: FUNCTION EXPRESSION
+var sub = function(num1, num2) {
+ return num1 - num2;
+}
+
+var func1 = add; // VARIABLE NOW POINTS TO SAME PLACE AS ADD
+document.write("<h1>"+ func1(10,20) + "</h1><br>");
+
+
+var func1 = sub; // VARIABLE NOW POINTS TO SAME PLACE AS SUB
+document.write("<h1>"+ func1("10,20,30",20) + "</h1><br>");
+
+add = null; 
+document.write("<h1>"+ func1(10,20) + "</h1><br>");
+
+// ADD IS NOW NULL. THE FOLLOWING CODE STOPS RUNNING THE JS SCRIPTS BECAUSE
+// OF ERROR IN CALLING ADD FUNCTION.
+// TODO: OPEN ERROR CONSOLE ON SAFARI or SIMILAR ON FIREFOX etc
+// Note how the error is displayed
+var val = add (10,20); // error null!
+document.write("<h1>"+ val + "</h1><br>"); // THIS LINE IS NOT PRINTED
+
+</script>
+</body>
+</html>

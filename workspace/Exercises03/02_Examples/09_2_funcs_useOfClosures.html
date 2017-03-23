@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<!--
+ SAME AS PREVIOUS EXAMPLE - EXCEPT IT HAS TWO COUNTERS
+-->
+<body>
+
+<h1>
+<p>Counting with a hidden variable.</p>
+
+<button type="button" onclick="myFunction1()">Click to inc Counter1</button>
+<button type="button" onclick="myFunction2()">Click to inc Counter2</button>
+
+<p id="demo1">0</p>
+<p id="demo2">0</p>
+
+<script>
+var oper = function () {
+    var counter = 0;  // use counter as a private variable in an object
+    return function () {
+      return counter += 1;
+    }
+};
+
+var add = oper();  // two different counters!
+var add2 = oper();
+
+// Trying to set counter to 0
+counter = 0; // this variable is different that add's counter
+
+function myFunction1(){
+    // Trying to set counter to 0
+    counter = 0; // This variable is different than add's counter
+    document.getElementById("demo1").innerHTML = "Counter1: " + add();
+    // The point is that global counter is zero. However, add 
+    // operates on the counter in the closure.
+}
+
+function myFunction2(){
+    // Trying to set counter to 0
+    counter = 0; // This variable is different than add's counter
+    document.getElementById("demo2").innerHTML = "Counter2: " + add2();
+    // Here the point is that the closure for add and add2 are
+    // different!
+}
+
+
+</script>
+
+</body>
+</html>

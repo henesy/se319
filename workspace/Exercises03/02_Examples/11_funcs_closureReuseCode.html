@@ -1,0 +1,29 @@
+<html>
+<head>
+<!-- 
+  Another example of use of closures.
+-->
+</head>
+
+<body>
+<h1>
+
+<script> 
+
+function makeFunction(conversionRate,offset) {
+  if (offset == undefined) offset = 0;
+  return function (val) { return  (offset+val) * conversionRate };
+}
+
+milesToKm = makeFunction(1.60936);
+poundsToKg = makeFunction(0.45460);
+FToC = makeFunction(0.5556, -32); // fahrenheit to centigrade
+
+document.write(milesToKm(10) + "<br>");
+document.write(poundsToKg(10) + "<br>");
+document.write(FToC(32) + "<br>");
+
+
+</script>
+</body>
+</html>

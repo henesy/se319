@@ -1,0 +1,6 @@
+Sean:
+code.html/code.js, login.html/login.js, boilerplate/some frame for booksLibrary.[js,html]
+
+Sam:
+booksLibrary.[js,html], code.html/code.js (used Sean's)
+

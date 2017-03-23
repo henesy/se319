@@ -1,0 +1,56 @@
+<html>
+<head>
+<script>
+
+// WAYS OF CREATING OBJECTS ---
+
+
+class Person {
+  constructor(s) {
+    this._name = s;
+    this._friends = ["Sam", "Molly"];
+  }
+
+  foo() {
+    console.log("hi " + this._name);
+    console.log(this._friends);
+  }
+
+}
+
+let p1 = new Person("John");
+let p2 = new Person("Jane");
+
+p1._friends.push("Folly");
+
+p1.foo();
+p2.foo();
+
+
+class Manager extends Person {
+
+  constructor(s) {
+    super(s);
+    this._employee = [];
+  }
+
+  addEmployee(s) {
+    this._employee.push(s);
+  }
+  
+
+}
+
+m1 = new Manager("Tom");
+m1.addEmployee("John");
+console.log(m1);
+
+m2 = new m1();
+
+// --- END --- YAY! ------
+
+</script>
+</head>
+<body>
+</body>
+</html>

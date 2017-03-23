@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<!--
+  THE PURPOSE OF THIS EXAMPLE IS TO SHOW 
+  ONE WAY IN WHICH CLOSUREs CAN BE USED
+
+  NOTE THAT counter is a LOCAL VARIABLE and cannot be modified outside
+  the function pointed to by add.
+
+-->
+<body>
+
+<h1>
+<p>Counting with a hidden variable.</p>
+
+<button type="button" onclick="myFunction1()">Click to inc Counter1</button>
+
+<p id="demo1">0</p>
+
+<script>
+var oper = function () {
+    var counter = 100;  // use counter as a private variable in an object
+    return function () {
+      return counter += 1;
+    }
+};
+
+var add = oper();  // two different counters!
+
+// Trying to set counter to 0
+counter = 0; // this variable is different that add's counter
+
+function myFunction1(){
+    // Trying to set counter to 0
+    counter = 0; // This variable is different than add's counter
+    document.getElementById("demo1").innerHTML = "Counter1: " + add();
+    // The point is that global counter is zero. However, add 
+    // operates on the counter in the closure.
+}
+
+</script>
+
+</body>
+</html>

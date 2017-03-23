@@ -1,4 +1,5 @@
 eclipse.preferences.version=1
+org.eclipse.dltk.internal.ui.navigator.layout=2
 sourceHoverBackgroundColor=255,255,225
 sourceHoverBackgroundColor.SystemDefault=true
 useAnnotationsPrefPage=true

@@ -1,3 +1,3 @@
 defaultPHPServer=Default PHP Web Server
 eclipse.preferences.version=1
-phpServers=<server><hostname>localhost</hostname><debuggerId>org.eclipse.php.debug.core.noneDebugger</debuggerId><document_root></document_root><name>Default PHP Web Server</name><base_url>http\://localhost</base_url><id>php-server-fed6c12f-4bb2-4af8-b8a4-4c654bc0fe62</id></server>
+phpServers=<server><name>Default PHP Web Server</name><base_url>http\://localhost</base_url><hostname>localhost</hostname><id>php-server-fed6c12f-4bb2-4af8-b8a4-4c654bc0fe62</id><debuggerId>org.eclipse.php.debug.core.noneDebugger</debuggerId></server>\u0005<server><hostname>localhost</hostname><port>8080</port><debuggerId>org.eclipse.php.debug.core.noneDebugger</debuggerId><document_root></document_root><name>UwAmp</name><base_url>http\://localhost</base_url><id>php-server-3476ba6a-d73c-4f29-b1ce-61e0c9bb5f1b</id></server>

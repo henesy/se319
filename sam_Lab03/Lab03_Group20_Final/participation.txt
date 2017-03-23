@@ -1,0 +1,5 @@
+Sean: Full Project
+Sam: Full Project
+
+Merged code together, standard calculator from Sam, binary calculator from Sean.
+

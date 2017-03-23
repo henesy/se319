@@ -1,3 +1,11 @@
 eclipse.preferences.version=1
-org.eclipse.php.debug.core.xdebugDebuggerSettingsProvider=<settings><proxyEnable>false</proxyEnable><clientPort>9000</clientPort><ownerId>php-server-fed6c12f-4bb2-4af8-b8a4-4c654bc0fe62</ownerId><proxyIdeKey>ECLIPSE_DBGP_xxx</proxyIdeKey><proxyAddress></proxyAddress></settings>
-org.eclipse.php.debug.core.zendDebuggerSettingsProvider=<settings><clientIp>127.0.0.1</clientIp><clientPort>10137</clientPort><ownerId>php-server-fed6c12f-4bb2-4af8-b8a4-4c654bc0fe62</ownerId><responseTimeout>60000</responseTimeout></settings>
+org.eclipse.php.debug.core.pathMapper=<pathMappers><item2><server>Default PHP Web Server</server><mapper></mapper></item2><item1><server>UwAmp</server><mapper></mapper></item1><item3><server>&lt;none&gt;</server><mapper></mapper></item3></pathMappers>
+org.eclipse.php.debug.core.xdebugDebuggerSettingsProvider=<settings><proxyEnable>false</proxyEnable><clientPort>9000</clientPort><ownerId>php-server-3476ba6a-d73c-4f29-b1ce-61e0c9bb5f1b</ownerId><proxyIdeKey>ECLIPSE_DBGP_xxx</proxyIdeKey><proxyAddress></proxyAddress></settings>\u0005<settings><proxyEnable>false</proxyEnable><clientPort>9000</clientPort><ownerId>php-server-fed6c12f-4bb2-4af8-b8a4-4c654bc0fe62</ownerId><proxyIdeKey>ECLIPSE_DBGP_xxx</proxyIdeKey><proxyAddress></proxyAddress></settings>
+org.eclipse.php.debug.core.zendDebuggerSettingsProvider=<settings><clientIp>25.14.76.61,192.168.189.1,192.168.56.1,10.30.178.245,127.0.0.1</clientIp><clientPort>10137</clientPort><ownerId>php-server-3476ba6a-d73c-4f29-b1ce-61e0c9bb5f1b</ownerId><responseTimeout>60000</responseTimeout></settings>\u0005<settings><clientIp>127.0.0.1</clientIp><clientPort>10137</clientPort><ownerId>php-server-fed6c12f-4bb2-4af8-b8a4-4c654bc0fe62</ownerId><responseTimeout>60000</responseTimeout></settings>
+org.eclipse.php.debug.coreinstalledPHPDebuggers=
+org.eclipse.php.debug.coreinstalledPHPInis=
+org.eclipse.php.debug.coreinstalledPHPLoadIniDefaults=
+org.eclipse.php.debug.coreinstalledPHPLocations=
+org.eclipse.php.debug.coreinstalledPHPNames=
+org.eclipse.php.debug.coreinstalledPHPUniqueIds=
+org.eclipse.php.debug.corephp_versions=

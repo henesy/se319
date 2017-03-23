@@ -1,0 +1,115 @@
+// Group 20 
+
+//sortBooks(Library)
+
+class Library {
+	constructor() {
+		this.numBooks = 25; // initial value
+		//loop for books
+		//generate shelves
+		//sort books
+		
+	}
+}
+
+
+class Shelf {
+	// can be type Art, Science, Sport, or Literature
+	constructor() {
+		this._Books = [];
+		//myShelf._Books.push(new Book());
+	}
+}
+
+
+//unsure if necessary
+class ArtShelf extends Shelf {
+	function type() {
+		return "Art";
+	}
+}
+
+class ScienceShelf extends Shelf {
+	
+}
+
+class SportShelf extends Shelf {
+	
+}
+
+class LiteratureShelf extends Shelf {
+	
+}
+
+
+class Book {
+	constructor() {
+		this.BookID = Math.floor((Math.random() * 999) + 100); //3 digit ID
+		
+		//move to local storage (?)
+		this.borrowedBy = "nil";
+		this.available = 1;
+	}
+}
+
+
+/*
+createTable formal arguments: 
+    n is the number of rows    m is the number of columns 
+The functional creates a table with the following
+DOM element table structure:
+<table border='2'>
+  <tbody>
+     <tr>
+        <td> ...  </td>
+     </tr>
+     <tr> ...  </tr>
+  </tbody>
+</table>
+*/
+function createTable(n, m) {
+  mytable = $("<table border='2'></table>"); // creates DOM elements
+  mytablebody = $('<tbody></tbody>'); 
+
+  for(row = 0; row < n; row++) {
+	  		//logic to add shelf name
+	      curr_row = $('<tr></tr>');
+
+	      for(col = 0; col < m; col++) {
+	    	  //book id/name info here
+	          curr_cell = $('<td></td>');
+	          curr_text = 'Row '+ row + ' Col ' + col;
+	          curr_cell.append(curr_text);
+	          curr_row.append(curr_cell);
+	      }
+	      mytablebody.append(curr_row); // appends arg to mytablebody
+  }
+  mytable.append(mytablebody);
+  mytable.insertBefore($('#tablecreate')); // real dom from document!
+
+}
+
+
+//primary operative
+
+$(document).ready(function() {
+	var view = window.location.search.substring(1);
+
+	$(".librarian").hide();
+	$(".undergrad").hide();
+	
+	if(view.indexOf("librarian") != -1) {
+		$(".librarian").show();
+	} else if(view.indexOf("undergraduate") != -1) {
+		$(".undergrad").show();
+	} else {
+		alert("Invalid Session!");
+		window.location.replace("./login.html");
+	}
+	
+});
+
+
+
+
+
