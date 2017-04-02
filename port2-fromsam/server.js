@@ -27,9 +27,19 @@ http.createServer(function(req, res) {
 	if(req.method === "GET") {
 		if(req.url.indexOf("pic") > -1) {
 			//getting image for a session
-			var img = fs.readFileSync('.' + req.url);
-			res.writeHead(200, {'Content-Type': 'image/png' });
-			res.end(img, 'binary');
+			var rsid = req.url.split("/")[2].split(".")[0];
+			if(sessions[rsid] != blankVal) {
+				//if there is an image
+				var img = fs.readFileSync('.' + req.url);
+				res.writeHead(200, {'Content-Type': 'image/png' });
+				res.end(img, 'binary');
+			} else {
+				var img = fs.readFileSync('./pics/err.png');
+				res.writeHead(200, {'Content-Type': 'image/png' });
+				res.end(img, 'binary');
+			}
+			console.log(rsid);
+
 			console.log(req.url);
 		} else {
 			/* request for a page */
