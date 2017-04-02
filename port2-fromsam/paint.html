@@ -1,11 +1,19 @@
 <html>
-<HEAD> 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> 
+<HEAD>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 </HEAD>
 <script>
-$(document).ready(function() { 
-// GET THE DOM OBJECTS 
+$(document).ready(function() {
+// GET THE DOM OBJECTS
+	var theAnswer;
+	var theGuess;
 	var sId = '$Sid';
+	var ans = '$ANS';
+	$SAT
+
+	$("#right").hide();
+	$("#wrong").hide();
+
     var canvas, ctx, flag = false,
         prevX = 0,
         currX = 0,
@@ -15,7 +23,7 @@ $(document).ready(function() {
 
     var x = "blue",
         y = 2;
-    
+
 	canvas = document.getElementById('can');
 	ctx = canvas.getContext("2d");
 	w = canvas.width;
@@ -33,7 +41,7 @@ $(document).ready(function() {
 	canvas.addEventListener("mouseout", function (e) {
 		findxy('out', e)
 	}, false);
-    
+
     function color(obj) {
         switch (obj.id) {
             case "green":
@@ -60,9 +68,9 @@ $(document).ready(function() {
         }
         if (x == "white") y = 14;
         else y = 2;
-    
+
     }
-    
+
     function draw() {
         ctx.beginPath();
         ctx.moveTo(prevX, prevY);
@@ -72,7 +80,15 @@ $(document).ready(function() {
         ctx.stroke();
         ctx.closePath();
     }
-    
+
+	$("#answer").on("keyup", function (e) {
+		theAnswer = $(e.target).val();
+	});
+
+	$("#guess").on("keyup", function (e) {
+		theGuess = $(e.target).val();
+	});
+
     $( "#clr" ).click(function erase() {
         var m = confirm("Want to clear");
         if (m) {
@@ -80,21 +96,36 @@ $(document).ready(function() {
             document.getElementById("canvasimg").style.display = "none";
         }
     });
-    
+
     $( "#sub" ).click(function submit() {
         var dataURL = canvas.toDataURL();
-        $.post("demo_ajax_gethint.asp", {canvas: dataURL, ordo: "picture", session: sId}, function(result){
+		var a = theAnswer;
+        $.post("demo_ajax_gethint.asp", {canvas: dataURL, ordo: "picture", session: sId, answer: a}, function(result){
 			console.log("Sent!");
 		});
     });
-    
+
+	$("#subGuess").click(function guessMe() {
+		if(theGuess == ans) {
+			$("#wrong").hide();
+			$("#right").show();
+		} else {
+			$("#right").hide();
+			$("#wrong").show();
+		}
+	});
+
+	function getVal() {
+		return $("#answer").val;
+	}
+
     function findxy(res, e) {
         if (res == 'down') {
             prevX = currX;
             prevY = currY;
             currX = e.clientX - canvas.offsetLeft;
             currY = e.clientY - canvas.offsetTop;
-    
+
             flag = true;
             dot_flag = true;
             if (dot_flag) {
@@ -119,10 +150,34 @@ $(document).ready(function() {
         }
     }
 });
-</script> 
+</script>
     <body>
-        <canvas id="can" width="500" height="500"></canvas>
-        <input type="button" value="submit" id="sub">
+		<div id="creator">
+        <canvas id="can" width="500" height="500" border="1"></canvas>
+		<br>
+		<input type="text" id="answer">
+		<br>
+		<input type="button" value="submit" id="sub">
         <input type="button" value="clear" id="clr">
+		</div>
+
+		<div id="guessor">
+        <img src=$PURL height="500" width="500">
+		<br>
+		<input type="text" id="guess">
+		<br>
+		<input type="button" value="submit" id="subGuess">
+		</div>
+
+		<div id="right">
+			<br>
+			<br>
+			<h3>YOU ARE CORRECT!</h3>
+		</div>
+		<div id="wrong">
+			<br>
+			<br>
+			<h3>Incorrect Guess.</h3>
+		</div>
     </body>
 </html>
