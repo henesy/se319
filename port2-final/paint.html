@@ -1,0 +1,234 @@
+<html>
+<HEAD>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+</HEAD>
+<script>
+$(document).ready(function() {
+	var theAnswer;
+	var theGuess;
+	var sId = '$Sid';
+	var ans = '$ANS';
+	var gname = "$NAME"
+	var image = new Image(); 
+	image.src = "$PURL";
+	
+	var guesser = $GUES;
+	
+	$("#right").hide();
+	$("#wrong").hide();
+	$("#subbed").hide();
+	timer = setInterval(Updater, 1500);
+	if(guesser){
+		$("#creator").hide();
+		console.log(image.width == 0);
+		$("#wload").show();
+		$("#lwait").hide();
+	}else{
+		$("#guessor").hide();
+	}
+
+	
+	function Updater(){
+		$.post("", {ordo: "getguess", session: sId}, function(result){
+			$("#Guesses").html(result);
+		});
+		image.src = image.src;
+		console.log("rechecking");
+		if(!(image.width == 0)){
+			$("#wload").hide();
+			$("#lwait").show();
+			$("#image").attr("src", $("#image").attr("src"));
+			console.log("Found image with width: "+image.width);
+		}
+	}
+
+
+	$("#answer").on("keyup", function (e) {
+		theAnswer = $(e.target).val();
+	});
+
+	$("#guess").on("keyup", function (e) {
+		theGuess = $(e.target).val();
+	});
+
+	$( "#lguess" ).click(function (){
+		guesser = 1;
+        $("#creator").hide();
+		$("#guessor").show();
+		$("#Guesses").hide();
+		if(image.width == 0){
+			$("#lwait").hide();
+		}
+    });
+	$( "#ldraw" ).click(function (){
+		guesser = 0;
+        $("#guessor").hide();
+		$("#creator").show();
+		$("#Guesses").hide();
+    });
+	$( "#sguess" ).click(function (){
+        $("#guessor").hide();
+		$("#Guesses").show();
+		$("#creator").hide();
+    });
+	
+    $( "#clr" ).click(function erase() {
+        var m = confirm("Want to clear");
+        if (m) {
+            ctx.clearRect(0, 0, w, h);
+        }
+		//$("#subbed").hide();
+    });
+
+    $( "#sub" ).click(function submit() {
+        var dataURL = canvas.toDataURL();
+		var a = theAnswer;
+        $.post("", {canvas: dataURL, ordo: "picture", session: sId, answer: a}, function(result){
+			console.log("Sent!");
+		});
+		$("#subbed").show();
+		setTimeout(function(){$("#nameform").submit();},1500);
+    });
+
+	$("#subGuess").click(function guessMe() {
+		$.post("", {ordo: "guess", session: sId, guess: theGuess, name:"$NAME"}, function(result){
+			console.log("Guess Sent!");
+		});
+		if(theGuess.toLowerCase() == ans) {
+			$("#wrong").hide();
+			$("#right").show();
+			setTimeout(function(){$("#nameform").submit();},1500);
+		} else {
+			$("#right").hide();
+			$("#wrong").show();
+		}
+	});
+
+	function getVal() {
+		return $("#answer").val;
+	}
+
+	
+	//functions found on web to correctly trace cursor input. not self done because of the scope of our project
+	var canvas, ctx, flag = false,
+	prevX = 0,
+	currX = 0,
+	prevY = 0,
+	currY = 0,
+	dot_flag = false;
+
+
+	canvas = document.getElementById('can');
+	ctx = canvas.getContext("2d");
+	w = canvas.width;
+	h = canvas.height;
+    function findxy(res, e) {
+        if (res == 'down') {
+            prevX = currX;
+            prevY = currY;
+            currX = e.clientX - canvas.offsetLeft;
+            currY = e.clientY - canvas.offsetTop;
+
+            flag = true;
+            dot_flag = true;
+            if (dot_flag) {
+                ctx.beginPath();
+                ctx.fillRect(currX, currY, 2, 2);
+                ctx.closePath();
+                dot_flag = false;
+            }
+        }
+        if (res == 'up' || res == "out") {
+            flag = false;
+        }
+        if (res == 'move') {
+            if (flag) {
+                prevX = currX;
+                prevY = currY;
+                currX = e.clientX - canvas.offsetLeft;
+                currY = e.clientY - canvas.offsetTop;
+                draw();
+            }
+        }
+    }
+	
+	canvas.addEventListener("mousemove", function (e) {
+		findxy('move', e)
+	}, false);
+	canvas.addEventListener("mousedown", function (e) {
+		findxy('down', e)
+	}, false);
+	canvas.addEventListener("mouseup", function (e) {
+		findxy('up', e)
+	}, false);
+	canvas.addEventListener("mouseout", function (e) {
+		findxy('out', e)
+	}, false);
+
+    function draw() {
+        ctx.beginPath();
+        ctx.moveTo(prevX, prevY);
+        ctx.lineTo(currX, currY);
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.closePath();
+    }
+});
+</script>
+    <body>
+	<form method="post" action="" id="nameform">
+		<input type="hidden" name="ordo" value="welcome">
+		<input type="hidden" name="name" style="display:none;" value="$NAME">
+		<input type="submit" value="Return To Index">
+	</form>
+	<input type="button" value="Let me draw" id="ldraw">
+	<input type="button" value="Let me guess" id="lguess">
+	<input type="button" value="See other guesses" id="sguess">
+	<p style="display:none;" id="Guesses">$GUESSES</p>
+		<div id="creator">
+		<h3>Draw an image for them to guess!</h3>
+		<br>
+        <canvas id="can" width="500" height="500" border="1"></canvas>
+		<br>
+		<input type="text" id="answer">
+		<br>
+		<br>
+		<input type="button" value="submit" id="sub">
+        <input type="button" value="clear" id="clr">
+		<div id="subbed">
+			<br>
+			<br>
+			<h3>Submitted image for this session successfully! Redirecting to index.</h3>
+		</div>
+		</div>
+
+		<div id="guessor">
+		<h3>Guess the image!</h3>
+		<h4 id="wload">Waiting for image to load</h4>
+		<br>
+		<div id="lwait">
+        <img src=$PURL id="image" height="500" width="500">
+		<br>
+		<input type="text" id="guess">
+		<br>
+		<input type="button" value="submit" id="subGuess">
+		</div>
+		<div id="right">
+			<br>
+			<br>
+			<h3>YOU ARE CORRECT! Redirecting to index.</h3>
+		</div>
+		<div id="wrong">
+			<br>
+			<br>
+			<h3>Incorrect Guess.</h3>
+		</div>
+		</div>
+
+
+
+
+
+    </body>
+</html>

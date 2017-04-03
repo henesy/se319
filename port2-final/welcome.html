@@ -1,0 +1,58 @@
+<head>
+<title>Group 20, Portfolio 2</title>
+<meta charset="utf-8">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+</head>
+
+<h1> Wilkommen! Pick a Session! </h1>
+
+<body>
+<form method="post" action="">
+<div>
+<!--Need to check for valid (<100) Session ID request> </!-->
+<label for="session">Session ID:</label>
+<select name="session" id="Game">
+<option selected="true" style="display:none;">Select Session</option>
+</select>
+<input type="hidden" name="ordo" value="paint">
+<input type="text" name="name" style="display:none;" value="$NAME">
+</div>
+<div>
+<input type="submit" value="Enter!">
+</div>
+</form>
+</body>
+<script>
+var form = document.getElementById("Game");	
+var stringArr = "";
+
+for(var i=0; i<100;i++){
+	newList = document.createElement("option");
+	newList.setAttribute("id", i);
+	newList.setAttribute("value", i);
+	newList.innerHTML = i;
+	form.appendChild(newList);
+}
+setInterval(Updater, 1500);
+Updater();
+function Updater(){
+	$.post("", {ordo: "getList", name: "$NAME"}, function(result){
+		stringArr = result;
+	});
+	for(var i=0; i<100;i++){
+		if(stringArr.charAt(i)=="O"){
+			$("#"+i).css({"color": "blue"});
+			$("#"+i).text(i+" You guessed this Image");
+		}
+		else if(stringArr.charAt(i)=="G"){
+			$("#"+i).css({"color": "green"});
+			$("#"+i).text(i+" Image Open");
+		}
+		else{
+			$("#"+i).css({"color": "black"});
+		}
+	}
+}
+
+</script>
+</html>
