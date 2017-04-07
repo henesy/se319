@@ -1,0 +1,29 @@
+# Define our project container
+php-server:
+  # Define that the Dockerfile required to build an image of this container
+  # is located in the same directory as this docker-compose.yml file
+  build: .
+  # Forward port 80 on this image to port 8080 on localhost
+  ports:
+    - 8080:80
+  # Make the db container (defined below) available to this image by
+  # the url host name "database"
+  links:
+    - db:database
+
+# Define our mysql container
+db:
+  # Define how to obtain the mysql image from the Docker hub
+  # https://hub.docker.com/_/mysql/
+  image: mysql:5.7
+  # Define environment variables on this image. Some of these environment
+  # variables are required for the mysql image to work properly
+  environment:
+    - MYSQL_ALLOW_EMPTY_PASSWORD=true
+    - MYSQL_USER=test
+    - MYSQL_PASSWORD=test
+    - MYSQL_DATABASE=test
+  # Forward port 3306 on this iamge to port 3306 on localhost
+  ports:
+    - 3306:3306
+  

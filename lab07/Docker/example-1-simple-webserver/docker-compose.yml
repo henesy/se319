@@ -1,0 +1,8 @@
+# Define our project container
+simple-webserver:
+  # Define that the Dockerfile required to build the image for this container
+  # is located in the same directory as this docker-compose.yml file
+  build: .
+  # Forward port 80 on this image to port 8080 on localhost
+  ports:
+    - 8080:80

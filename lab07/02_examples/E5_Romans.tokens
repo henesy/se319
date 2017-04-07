@@ -1,0 +1,4 @@
+ROMAN=1
+WS=2
+NEWLINE=3
+'\n'=3
