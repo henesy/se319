@@ -1,0 +1,2831 @@
+%!PS-Adobe-3.0
+%%Title: 1_ws.js, httpServer.js, 1_basics.js, 1_httpServer.js, 2_mymodule.js, 3_testmymodules.js, helloWorld.js, test.js, testEventEmitter.js, testMod.js
+%%For: Simanta Mitra
+%%Creator: a2ps version 4.14
+%%CreationDate: Mon Apr 10 12:52:17 2017
+%%BoundingBox: 24 24 588 768
+%%DocumentData: Clean7Bit
+%%Orientation: Landscape
+%%Pages: 15
+%%PageOrder: Ascend
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: font Courier
+%%+ font Courier-Bold
+%%+ font Courier-BoldOblique
+%%+ font Courier-Oblique
+%%+ font Helvetica
+%%+ font Helvetica-Bold
+%%+ font Symbol
+%%+ font Times-Bold
+%%+ font Times-Roman
+%%DocumentProcessColors: Black 
+%%DocumentSuppliedResources: procset a2ps-a2ps-hdr
+%%+ procset a2ps-black+white-Prolog
+%%+ encoding ISO-8859-1Encoding
+%%EndComments
+/a2psdict 200 dict def
+a2psdict begin
+%%BeginProlog
+%%Copyright: (c) 1988, 89, 90, 91, 92, 93 Miguel Santana
+%%Copyright: (c) 1995, 96, 97, 98 Akim Demaille, Miguel Santana
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+
+% EPSF import as in the Red Book
+/BeginInclude {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack 
+  userdict begin
+    0 setgray 0 setlinecap
+    1 setlinewidth 0 setlinejoin
+    10 setmiterlimit [ ] 0 setdash newpath
+    gs_languagelevel 1 ne {
+      false setstrokeadjust false setoverprint 
+    } if
+} bind def
+
+/EndInclude {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+/BeginEPSF {
+  BeginInclude
+  /showpage { } def
+} bind def
+
+/EndEPSF {
+  EndInclude
+} bind def
+
+% Page prefeed
+/page_prefeed {         % bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} bind def
+
+/deffont {
+  findfont exch scalefont def
+} bind def
+
+/reencode_font {
+  findfont reencode 2 copy definefont pop def
+} bind def
+
+% Function c-show (str => -)
+% centers text only according to x axis.
+/c-show { 
+  dup stringwidth pop
+  2 div neg 0 rmoveto
+  show
+} bind def
+
+% Function l-show (str => -)
+% prints texts so that it ends at currentpoint
+/l-show {
+  dup stringwidth pop neg 
+  0 
+  rmoveto show
+} bind def
+
+% center-fit show (str w => -)
+% show centered, and scale currentfont so that the width is less than w
+/cfshow {
+  exch dup stringwidth pop
+  % If the title is too big, try to make it smaller
+  3 2 roll 2 copy
+  gt
+  { % if, i.e. too big
+    exch div
+    currentfont exch scalefont setfont
+  } { % ifelse
+    pop pop 
+  }
+  ifelse
+  c-show			% center title
+} bind def
+
+% Return the y size of the current font
+% - => fontsize
+/currentfontsize {
+  currentfont /FontMatrix get 3 get 1000 mul
+} bind def
+
+% reencode the font
+% <encoding-vector> <fontdict> -> <newfontdict>
+/reencode { %def
+  dup length 5 add dict begin
+    { %forall
+      % <vector> <key> <val>
+      1 index /FID ne 
+      { def }{ pop pop } ifelse
+    } forall
+    /Encoding exch def % -
+
+    % Use the font's bounding box to determine the ascent, descent,
+    % and overall height; don't forget that these values have to be
+    % transformed using the font's matrix.
+    % We use `load' because sometimes BBox is executable, sometimes not.
+    % Since we need 4 numbers an not an array avoid BBox from being executed
+    /FontBBox load aload pop
+    FontMatrix transform /Ascent exch def pop
+    FontMatrix transform /Descent exch def pop
+    /FontHeight Ascent Descent sub def
+
+    % Get the underline position and thickness if they're defined.
+    % Use 1 if they are not defined.
+    currentdict /FontInfo 2 copy known
+    { get
+      /UnderlinePosition 2 copy % <FontInfo> /UP <FontInfo> /UP
+      2 copy known
+      { get }{ pop pop 1 } ifelse
+      0 exch FontMatrix transform exch pop
+      def % <FontInfo>
+
+      /UnderlineThickness 2 copy % <FontInfo> /UT <FontInfo> /UT
+      2 copy known
+      { get }{ pop pop 1 } ifelse
+      0 exch FontMatrix transform exch pop
+      def % <FontInfo>
+      pop % -
+    }{ pop pop
+    } ifelse
+
+    currentdict
+  end 
+} bind def
+
+% Function print line number (<string> # -)
+/# {
+  gsave
+    sx cw mul neg 2 div 0 rmoveto
+    f# setfont
+    c-show
+  grestore
+} bind def
+
+% -------- Some routines to enlight plain b/w printings ---------
+
+% Underline
+% width --
+/dounderline {
+  currentpoint
+  gsave
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    0 rlineto
+    stroke
+  grestore
+} bind def
+
+% Underline a string
+% string --
+/dounderlinestring {
+  stringwidth pop
+  dounderline
+} bind def
+
+/UL {
+  /ul exch store
+} bind def
+
+% Draw a box of WIDTH wrt current font
+% width --
+/dobox {
+  currentpoint
+  gsave
+    newpath
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    dup 0 rlineto
+    0 currentfont /FontHeight get currentfontsize mul rlineto
+    neg 0 rlineto
+    closepath
+    stroke
+  grestore
+} bind def
+
+/BX {
+  /bx exch store
+} bind def
+
+% Box a string
+% string --
+/doboxstring {
+  stringwidth pop
+  dobox
+} bind def
+
+%
+% ------------- Color routines ---------------
+%
+/FG /setrgbcolor load def
+
+% Draw the background
+% width --
+/dobackground {
+  currentpoint
+  gsave
+    newpath
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    dup 0 rlineto
+    0 currentfont /FontHeight get currentfontsize mul rlineto
+    neg 0 rlineto
+    closepath
+    bgcolor aload pop setrgbcolor
+    fill
+  grestore
+} bind def
+
+% Draw bg for a string
+% string --
+/dobackgroundstring {
+  stringwidth pop
+  dobackground
+} bind def
+
+
+/BG {
+  dup /bg exch store
+  { mark 4 1 roll ] /bgcolor exch store } if
+} bind def
+
+
+/Show {
+  bg { dup dobackgroundstring } if
+  ul { dup dounderlinestring } if
+  bx { dup doboxstring } if
+  show
+} bind def
+
+% Function T(ab), jumps to the n-th tabulation in the current line
+/T {
+  cw mul x0 add
+  bg { dup currentpoint pop sub dobackground } if
+  ul { dup currentpoint pop sub dounderline } if
+  bx { dup currentpoint pop sub dobox } if
+  y0 moveto
+} bind def
+
+% Function n: move to the next line
+/n {
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+% Function N: show and move to the next line
+/N {
+  Show
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+/S {
+  Show
+} bind def
+
+%%BeginResource: procset a2ps-a2ps-hdr 2.0 2
+%%Copyright: (c) 1988, 89, 90, 91, 92, 93 Miguel Santana
+%%Copyright: (c) 1995, 96, 97, 98 Akim Demaille, Miguel Santana
+% Function title: prints page header.
+% <ct> <rt> <lt> are passed as argument
+/title { 
+  % 1. Draw the background
+  x v get y v get moveto
+  gsave
+    0 th 2 div neg rmoveto 
+    th setlinewidth
+    0.95 setgray
+    pw 0 rlineto stroke
+  grestore
+  % 2. Border it
+  gsave
+    0.7 setlinewidth
+    pw 0 rlineto
+    0 th neg rlineto
+    pw neg 0 rlineto
+    closepath stroke
+  grestore
+  % stk: ct rt lt
+  x v get y v get th sub 1 add moveto
+%%IncludeResource: font Helvetica
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  % 3. The left title
+  gsave
+    dup stringwidth pop fnfs 0.8 mul add exch % leave space took on stack
+    fnfs 0.8 mul hm rmoveto
+    show			% left title
+  grestore
+  exch
+  % stk: ct ltw rt
+  % 4. the right title
+  gsave
+    dup stringwidth pop fnfs 0.8 mul add exch % leave space took on stack
+    dup
+    pw exch stringwidth pop fnfs 0.8 mul add sub
+    hm
+    rmoveto
+    show			% right title
+  grestore
+  % stk: ct ltw rtw
+  % 5. the center title
+  gsave
+    pw 3 1 roll
+    % stk: ct pw ltw rtw
+    3 copy 
+    % Move to the center of the left room
+    sub add 2 div hm rmoveto
+    % What is the available space in here?
+    add sub fnfs 0.8 mul sub fnfs 0.8 mul sub
+    % stk: ct space_left
+%%IncludeResource: font Helvetica-Bold
+  fHelvetica-Bold fnfs scalefont setfont
+    cfshow
+  grestore
+} bind def
+
+% Function border: prints virtual page border
+/border { %def
+  gsave				% print four sides
+    0 setgray
+    x v get y v get moveto
+    0.7 setlinewidth		% of the square
+    pw 0 rlineto
+    0 ph neg rlineto
+    pw neg 0 rlineto
+    closepath stroke
+  grestore
+} bind def
+
+% Function water: prints a water mark in background
+/water { %def
+  gsave
+    scx scy moveto rotate
+%%IncludeResource: font Times-Bold
+  fTimes-Bold 100 scalefont setfont
+    .97 setgray
+    dup stringwidth pop 2 div neg -50 rmoveto
+    show
+  grestore
+} bind def
+
+% Function rhead: prints the right header
+/rhead {  %def
+  lx ly moveto
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  l-show
+} bind def
+
+% Function footer (cf rf lf -> -)
+/footer {
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  dx dy moveto
+  show
+
+  snx sny moveto
+  l-show
+  
+  fnx fny moveto
+  c-show
+} bind def
+%%EndResource
+%%BeginResource: procset a2ps-black+white-Prolog 2.0 1
+
+% Function T(ab), jumps to the n-th tabulation in the current line
+/T { 
+  cw mul x0 add y0 moveto
+} bind def
+
+% Function n: move to the next line
+/n { %def
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+% Function N: show and move to the next line
+/N {
+  Show
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+}  bind def
+
+/S {
+  Show
+} bind def
+
+/p {
+  false UL
+  false BX
+  fCourier bfs scalefont setfont
+  Show
+} bind def
+
+/sy {
+  false UL
+  false BX
+  fSymbol bfs scalefont setfont
+  Show
+} bind def
+
+/k {
+  false UL
+  false BX
+  fCourier-Oblique bfs scalefont setfont
+  Show
+} bind def
+
+/K {
+  false UL
+  false BX
+  fCourier-Bold bfs scalefont setfont
+  Show
+} bind def
+
+/c {
+  false UL
+  false BX
+  fCourier-Oblique bfs scalefont setfont
+  Show
+} bind def
+
+/C {
+  false UL
+  false BX
+  fCourier-BoldOblique bfs scalefont setfont
+  Show 
+} bind def
+
+/l {
+  false UL
+  false BX
+  fHelvetica bfs scalefont setfont
+  Show
+} bind def
+
+/L {
+  false UL
+  false BX
+  fHelvetica-Bold bfs scalefont setfont
+  Show 
+} bind def
+
+/str{
+  false UL
+  false BX
+  fTimes-Roman bfs scalefont setfont
+  Show
+} bind def
+
+/e{
+  false UL
+  true BX
+  fHelvetica-Bold bfs scalefont setfont
+  Show
+} bind def
+
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Courier
+%%IncludeResource: font Courier-Oblique
+%%IncludeResource: font Courier-Bold
+%%IncludeResource: font Times-Roman
+%%IncludeResource: font Symbol
+%%IncludeResource: font Courier-BoldOblique
+%%BeginResource: encoding ISO-8859-1Encoding
+/ISO-8859-1Encoding [
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/space /exclam /quotedbl /numbersign /dollar /percent /ampersand /quoteright 
+/parenleft /parenright /asterisk /plus /comma /minus /period /slash 
+/zero /one /two /three /four /five /six /seven 
+/eight /nine /colon /semicolon /less /equal /greater /question 
+/at /A /B /C /D /E /F /G 
+/H /I /J /K /L /M /N /O 
+/P /Q /R /S /T /U /V /W 
+/X /Y /Z /bracketleft /backslash /bracketright /asciicircum /underscore 
+/quoteleft /a /b /c /d /e /f /g 
+/h /i /j /k /l /m /n /o 
+/p /q /r /s /t /u /v /w 
+/x /y /z /braceleft /bar /braceright /asciitilde /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/space /exclamdown /cent /sterling /currency /yen /brokenbar /section 
+/dieresis /copyright /ordfeminine /guillemotleft /logicalnot /hyphen /registered /macron 
+/degree /plusminus /twosuperior /threesuperior /acute /mu /paragraph /bullet 
+/cedilla /onesuperior /ordmasculine /guillemotright /onequarter /onehalf /threequarters /questiondown 
+/Agrave /Aacute /Acircumflex /Atilde /Adieresis /Aring /AE /Ccedilla 
+/Egrave /Eacute /Ecircumflex /Edieresis /Igrave /Iacute /Icircumflex /Idieresis 
+/Eth /Ntilde /Ograve /Oacute /Ocircumflex /Otilde /Odieresis /multiply 
+/Oslash /Ugrave /Uacute /Ucircumflex /Udieresis /Yacute /Thorn /germandbls 
+/agrave /aacute /acircumflex /atilde /adieresis /aring /ae /ccedilla 
+/egrave /eacute /ecircumflex /edieresis /igrave /iacute /icircumflex /idieresis 
+/eth /ntilde /ograve /oacute /ocircumflex /otilde /odieresis /divide 
+/oslash /ugrave /uacute /ucircumflex /udieresis /yacute /thorn /ydieresis 
+] def
+%%EndResource
+% Initialize page description variables.
+/sh 612 def
+/sw 792 def
+/llx 24 def
+/urx 768 def
+/ury 588 def
+/lly 24 def
+/#copies 1 def
+/th 15.000000 def
+/fnfs 11 def
+/bfs 7.060185 def
+/cw 4.236111 def
+
+% Dictionary for ISO-8859-1 support
+/iso1dict 8 dict begin
+  /fCourier ISO-8859-1Encoding /Courier reencode_font
+  /fCourier-Bold ISO-8859-1Encoding /Courier-Bold reencode_font
+  /fCourier-BoldOblique ISO-8859-1Encoding /Courier-BoldOblique reencode_font
+  /fCourier-Oblique ISO-8859-1Encoding /Courier-Oblique reencode_font
+  /fHelvetica ISO-8859-1Encoding /Helvetica reencode_font
+  /fHelvetica-Bold ISO-8859-1Encoding /Helvetica-Bold reencode_font
+  /fTimes-Bold ISO-8859-1Encoding /Times-Bold reencode_font
+  /fTimes-Roman ISO-8859-1Encoding /Times-Roman reencode_font
+currentdict end def
+/bgcolor [ 0 0 0 ] def
+/bg false def
+/ul false def
+/bx false def
+% The font for line numbering
+/f# /Helvetica findfont bfs .6 mul scalefont def
+/fSymbol /Symbol findfont def
+/hm fnfs 0.25 mul def
+/pw
+   cw 86.400000 mul
+def
+/ph
+   520.335631 th add
+def
+/pmw urx llx sub pw 2 mul sub 1 div def
+/pmh 0 def
+/v 0 def
+/x [
+  0
+  dup pmw add pw add
+] def
+/y [
+  pmh ph add 0 mul ph add
+  dup
+] def
+/scx sw 2 div def
+/scy sh 2 div def
+/snx urx def
+/sny lly 2 add def
+/dx llx def
+/dy sny def
+/fnx scx def
+/fny dy def
+/lx snx def
+/ly ury fnfs 0.8 mul sub def
+/sx 5 def
+/tab 8 def
+/x0 0 def
+/y0 0 def
+%%EndSetup
+
+%%Page: (1,1) 1
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose is to introduce you to websockets) N
+(3) # (// This is a SERVER that is SEPARATE from the http server.) N
+(4) # (//) N
+(5) # (// Your webpage \(in this case the index.html in this directory\)) N
+(6) # (// will be SERVED by the http server. THEN, it will connect to the ) N
+(7) # (// websocket server. Then - they will talk to each other!) N
+(8) # (//) N
+(9) # (// Note that in regular http - the server cannot initiate a conversation) N
+(10) # (// Here, the websocket server sends a message to the client browser.) N
+(11) # (//) N
+(12) # (// This example has THREE parts) N
+(13) # (// 1\) The http server code \(which is same as what we did earlier\)) N
+(14) # (// 2\) This code - this is the web socket server) N
+(15) # (// It prints what it got from client. It also sends a message to the) N
+(16) # (// client after every 1 second.) N
+(17) # (// 3\) The html or client code. Note how it connects to the websocket) N
+(18) # (// and how it sends and receives messages) N
+(19) # (//) N
+(20) # (// To RUN THIS EXAMPLE) N
+(21) # (// First, run node httpServer.js on one terminal) N
+(22) # (// Next, run node 1_ws.js on another terminal) N
+(23) # (// Next, type localhost:4000/index.html on some browser) N
+(24) # (//) N
+(25) # (//---------------------------------------------------------------) N
+(26) # () S
+(var) K
+( io = require\(') p
+(socket.io) str
+('\).listen\(5000\);) p n
+(27) # () N
+(28) # (io.sockets.on\(') S
+(connection) str
+(', function\(socket\) {) p n
+(29) # (  socket.on\(') S
+(myEvent) str
+(', function\(content\) {) p n
+(30) # (    console.log\(content\); ) N
+(31) # (    socket.emit\(') S
+(server) str
+(', ") p
+(This is the server: got your message) str
+("\);) p n
+(32) # (    ) S
+(var) K
+( num = 3;) p n
+(33) # (    ) S
+(var) K
+( interval = setInterval\( function\(\) {) p n
+(34) # (        socket.emit\(') S
+(server) str
+(', num + ") p
+(: message from server) str
+("\);) p n
+(35) # (        ) S
+(if) K
+( \(num-- == 0\) { ) p n
+(36) # (          clearInterval\(interval\); ) S
+(// stops timer) c n
+(37) # () S
+(        }) p n
+(38) # (    }, 1000\); ) S
+(// fire every 1 second) c n
+(39) # () S
+(  }\);) p n
+(40) # (}\);) N
+(1_ws.js) (Page 1/1) (Nov 15, 15 22:16) title
+border
+/v 1 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose is to serve a file!) N
+(3) # (//---------------------------------------------------------------) N
+(4) # () N
+(5) # () S
+(var) K
+( util = require\(') p
+(util) str
+('\);) p n
+(6) # () S
+(var) K
+( path = require\(') p
+(path) str
+('\);) p n
+(7) # () S
+(var) K
+( http = require\(') p
+(http) str
+('\);) p n
+(8) # () S
+(var) K
+( fs   = require\(') p
+(fs) str
+('\);) p n
+(9) # () S
+(var) K
+( server = http.createServer\(\);) p n
+(10) # () N
+(11) # () S
+(// attach handler) c n
+(12) # () S
+(server.on\(') p
+(request) str
+(', function \(req,res\) {) p n
+(13) # (  ) S
+(var) K
+( file = path.normalize\(') p
+(.) str
+(' + req.url\);) p n
+(14) # () N
+(15) # (  fs.exists\(file, function\(exists\) {) N
+(16) # (    ) S
+(if) K
+( \(exists\) {) p n
+(17) # (      ) S
+(var) K
+( rs = fs.createReadStream\(file\);) p n
+(18) # () N
+(19) # (      rs.on\(') S
+(error) str
+(', function\(\) {) p n
+(20) # (        res.writeHead\(500\); ) S
+(// error status) c n
+(21) # () S
+(        res.end\(') p
+(Internal Server Error) str
+('\);) p n
+(22) # (      }\);) N
+(23) # () N
+(24) # () N
+(25) # (      res.writeHead\(200\); ) S
+(// ok status) c n
+(26) # () N
+(27) # () S
+(      ) p
+(// PIPE the read stream with the RESPONSE stream) c n
+(28) # () S
+(      rs.pipe\(res\);) p n
+(29) # (    } ) N
+(30) # (    ) S
+(else) K
+( {) p n
+(31) # (      res.writeHead\(404\); ) S
+(// error status) c n
+(32) # () S
+(      res.end\(') p
+(NOT FOUND) str
+('\);) p n
+(33) # (    }) N
+(34) # (  }\);) N
+(35) # () N
+(36) # (}\); ) S
+(// end server on handler) c n
+(37) # () N
+(38) # () S
+(server.listen\(4000\);) p n
+(39) # (console.log\(") S
+(hi) str
+("\);) p n
+(40) # (console.log\(") S
+(hi) str
+("\);) p n
+(41) # (console.log\(") S
+(hi) str
+("\);) p n
+(42) # (console.log\(") S
+(hi) str
+("\);) p n
+(httpServer.js) (Page 1/1) (Nov 29, 16 17:54) title
+border
+grestore
+(Printed by Simanta Mitra) rhead
+(./10_websocket/1_ws.js, ./10_websocket/httpServer.js) (1/15) (Monday April 10, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1,1) 2
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (// ------------------------------------------------------------) c n
+(2) # (// The purpose is to go over some basics) N
+(3) # (// 1. nodejs code is javascript) N
+(4) # (// 2. cannot use DOM related calls as that would be "client-side") N
+(5) # (// 3. process.argv is arguments from command line) N
+(6) # (//) N
+(7) # (// RUN THIS PROGRAM by typing the following on the command line ) N
+(8) # (// node 1_basics.js 1 2 3 4 5) N
+(9) # (// ------------------------------------------------------------) N
+(10) # () N
+(11) # (// CHECK ARGUMENTS -------------) N
+(12) # () S
+(if) K
+( \(process.argv.length <= 2\) {) p n
+(13) # (  ) S
+(// note that argv is an array and consists of the) c n
+(14) # () S
+(  ) p
+(// word node followed by 1_basics followed by other args) c n
+(15) # () S
+(  console.log\(") p
+(usage: node 1_basics.js 1 2 3 4 5) str
+("\);) p n
+(16) # (  ) S
+(return) K
+(;) p n
+(17) # (}) N
+(18) # () N
+(19) # () S
+(// DO SOME SIMPLE CALCULATIONS -----------) c n
+(20) # (// calculate sum of numbers provided as command line arguments) N
+(21) # () S
+(var) K
+( sum = 0;) p n
+(22) # () S
+(var) K
+( i;) p n
+(23) # () S
+(for) K
+( \(i = 2; i < process.argv.length; i++\) {) p n
+(24) # (  ) S
+(//sum = sum + process.argv[i]; // this will concatenate strings) c n
+(25) # () S
+(  sum = sum + Number\(process.argv[i]\);) p n
+(26) # (}) N
+(27) # (console.log\(") S
+(The sum of command-line numbers is : ) str
+(", sum\)) p n
+(28) # () N
+(29) # () N
+(30) # () S
+(// PLAY WITH SIMPLE LIBRARIES --------------) c n
+(31) # (// the require keyword lets us use some module) N
+(32) # (// fs module \(or file system module lets us operate on files and dirs\)) N
+(33) # () S
+(var) K
+( fs = require\(') p
+(fs) str
+('\); ) p n
+(34) # (  ) N
+(35) # () S
+(// path module lets us operate on path) c n
+(36) # () S
+(var) K
+( path = require\(') p
+(path) str
+('\);) p n
+(37) # () N
+(38) # () S
+(// fs.readdir allows us to provide a callback that is called when) c n
+(39) # (// directory has been read) N
+(40) # (// The below code FILTERS the directory listing and only prints) N
+(41) # (// js files. It looks at current directory i.e. ".") N
+(42) # () S
+(var) K
+( buf = fs.readdir\(") p
+(.) str
+(",) p n
+(43) # (  function\(err, data\) {) N
+(44) # (    ) S
+(if) K
+( \(err\) { console.log \(") p
+(error: ) str
+(", err.message\); }) p n
+(45) # (    ) S
+(else) K
+( {) p n
+(46) # (      ) S
+(// data should have array of files at this point) c n
+(47) # () S
+(      console.log\(") p
+(The filtered listing for current directory is:) str
+("\);) p n
+(48) # (      ) S
+(for) K
+( \(i = 0; i < data.length; i++\) {) p n
+(49) # (        ) S
+(var) K
+( s = path.extname\(data[i]\); ) p
+(// get the extension) c n
+(50) # () S
+(        ) p
+(if) K
+( \(s === ") p
+(.js) str
+("\) { ) p
+(// check if the extension is .js) c n
+(51) # () S
+(          console.log\(data[i]\); ) p
+(// printing js file name) c n
+(52) # () S
+(        }) p n
+(53) # (      }) N
+(54) # (    }) N
+(55) # (  } ) S
+(// end of callback function) c n
+(56) # () S
+(\); ) p
+(// end of readdir) c n
+(57) # () N
+(1_basics.js) (Page 1/1) (Apr 11, 16 14:53) title
+border
+/v 1 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose is to show how to build a http server using nodejs) N
+(3) # (//) N
+(4) # (// http servers fire a 'request' event) N
+(5) # (//) N
+(6) # (// TO RUN THIS EXAMPLE) N
+(7) # (// 1. type node 1_httpServer.js on the command line) N
+(8) # (// 2. type http://localhost:4000 on a browser) N
+(9) # (//---------------------------------------------------------------) N
+(10) # () N
+(11) # () N
+(12) # () S
+(var) K
+( http = require\(') p
+(http) str
+('\);) p n
+(13) # () S
+(var) K
+( server = http.createServer\(\);) p n
+(14) # () N
+(15) # () S
+(// attach handler) c n
+(16) # () S
+(server.on\(') p
+(request) str
+(', function \(request,response\) {) p n
+(17) # (  response.writeHead\(200, {') S
+(Content-Type) str
+(': ') p
+(text/plain) str
+('}\); ) p
+(// header) c n
+(18) # () S
+(  response.write\(') p
+(Hello World) str
+('\); ) p
+(// data) c n
+(19) # () S
+(  response.end\(\); ) p
+(// done - send the data) c n
+(20) # () S
+(}\);) p n
+(21) # () N
+(22) # (server.listen\(4000\);) N
+(1_httpServer.js) (Page 1/1) (Apr 11, 16 14:23) title
+border
+grestore
+(Printed by Simanta Mitra) rhead
+(./1_modules/1_basics.js, ./1_modules/1_httpServer.js) (2/15) (Monday April 10, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1,1) 3
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose is to learn to create our OWN modules or libraries) N
+(3) # (// \(just like fs or path etc\)) N
+(4) # (// The key is to set module.exports appropriately) N
+(5) # (//---------------------------------------------------------------) N
+(6) # () N
+(7) # (// You can set this to whatever you want, but usually objects) N
+(8) # (// we create an object that has two functions) N
+(9) # (// The first one is sayHello) N
+(10) # (// The second one is filterDirectory) N
+(11) # (//) N
+(12) # (//exports.test = {) N
+(13) # () S
+(module.exports = {) p n
+(14) # (  sayHello: function \(\) {) N
+(15) # (    console.log\(") S
+(hello!) str
+("\);) p n
+(16) # (  },) N
+(17) # () N
+(18) # (  filterDirectory : function \(dir, ext, callback\) {) N
+(19) # (     ) S
+(var) K
+( fs = require\(') p
+(fs) str
+('\);) p n
+(20) # (     ) S
+(var) K
+( path = require\(') p
+(path) str
+('\);) p n
+(21) # (     ) S
+(var) K
+( retValue =[]; ) p
+(// empty array) c n
+(22) # () S
+(     fs.readdir\(dir, function\(err, data\) {) p n
+(23) # (        ) S
+(if) K
+( \(err\) { callback\(err\); }) p n
+(24) # (        ) S
+(else) K
+( { ) p n
+(25) # (          retValue = data.filter\(function\(filename\) {) N
+(26) # (            ) S
+(return) K
+( path.extname\(filename\) === ") p
+(.) str
+(" + ext;) p n
+(27) # (          }\); ) S
+(// note that filter is an operation provided on arrays) c n
+(28) # () S
+(          callback\() p
+(null) k
+(, retValue\);) p n
+(29) # (        } ) S
+(// end else on error) c n
+(30) # () S
+(    }\);) p n
+(31) # (  }) N
+(32) # (}; ) S
+(// end of object for module.exports) c n
+(2_mymodule.js) (Page 1/1) (Apr 11, 16 14:21) title
+border
+/v 1 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose of this program is to TEST our module!) N
+(3) # (// Now we will be able to create our own libraries and use them.) N
+(4) # (//) N
+(5) # (// RUN THIS PROGRAM by typing the following on the command line ) N
+(6) # (// node 3_testmymodules.js ) N
+(7) # (//---------------------------------------------------------------) N
+(8) # () S
+(  ) p n
+(9) # () S
+(//var x = require\('./2_mymodule.js'\); ) c n
+(10) # () S
+(var) K
+( x = require\(') p
+(./2_mymodule) str
+('\); ) p
+(// ".js" is optional) c n
+(11) # () N
+(12) # () S
+(x.sayHello\(\); ) p
+(// we used our module!) c n
+(13) # () N
+(14) # () N
+(15) # (// Here we use our module's filterDirectory function) N
+(16) # () S
+(x.filterDirectory\(") p
+(abc) str
+(", process.argv[2], function\(err, data\) {) p n
+(17) # (  ) S
+(if) K
+( \(err\) { console.error \(") p
+(error:) str
+(", err\); }) p n
+(18) # (  ) S
+(else) K
+( {) p n
+(19) # (    data.forEach\(function\(file\) { ) S
+(// here is another array operation) c n
+(20) # () S
+(      console.log \(file\);) p n
+(21) # (    }\);) N
+(22) # (  }) N
+(23) # (}\);) N
+(3_testmymodules.js) (Page 1/1) (Apr 11, 16 15:47) title
+border
+grestore
+(Printed by Simanta Mitra) rhead
+(./1_modules/2_mymodule.js, ./1_modules/3_testmymodules.js) (3/15) (Monday April 10, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1,1) 4
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (console.log\(") p
+(Hello World) str
+("\);) p n
+(helloWorld.js) (Page 1/1) (Nov 11, 15 14:19) title
+border
+/v 1 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//1 just run, process command line args) c n
+(2) # (//) N
+(3) # () N
+(4) # (// 2 show debugger) N
+(5) # () N
+(6) # (// 3 use fs module fs.readdir\(dir, handler\)) N
+(7) # (// path.extname\(path\) gives extension) N
+(8) # (//) N
+(9) # () N
+(10) # () N
+(11) # () N
+(12) # () N
+(13) # (// 4 create own module sayHello and) N
+(14) # (// filterDirectory + callback pattern) N
+(15) # () N
+(16) # () S
+(  ) p n
+(17) # () S
+(// 5 sync read and async read   ) c n
+(18) # (// readFileSync\(f\), readFile\(f, callback\)) N
+(19) # () N
+(20) # (// 6 createReadStream\(f\) + attach handlers) N
+(21) # (// data error end) N
+(22) # () N
+(23) # () S
+(var) K
+( fs = require\(') p
+(fs) str
+('\);) p n
+(24) # () N
+(25) # () S
+(var) K
+( rs = fs.createReadStream\(") p
+(testxcxc.js) str
+("\);) p n
+(26) # () N
+(27) # (rs.on\(') S
+(error) str
+(', function\(err\) {) p n
+(28) # (  console.log\(err\);) N
+(29) # (}\)) N
+(30) # (rs.on\(') S
+(data) str
+(', function\(d\) {) p n
+(31) # (  console.log\(d\);) N
+(32) # (}\)) N
+(33) # (rs.on\(') S
+(end) str
+(', function\(\) {) p n
+(34) # (  console.log\(") S
+(--- DONE ---) str
+("\);) p n
+(35) # (}\)) N
+(36) # () N
+(37) # () N
+(38) # () N
+(39) # () S
+(// 7 creating event emitters) c n
+(40) # () S
+(  ) p n
+(test.js) (Page 1/1) (Nov 28, 16 15:01) title
+border
+grestore
+(Printed by Simanta Mitra) rhead
+(./1_modules/helloWorld.js, ./1_modules/test.js) (4/15) (Monday April 10, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1,1) 5
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (var) K
+( util = require\(') p
+(util) str
+('\);) p n
+(2) # () S
+(var) K
+( eventEmitter = require\(') p
+(events) str
+('\).EventEmitter;) p n
+(3) # () N
+(4) # () S
+(var) K
+( Ticker = function\(\) {) p n
+(5) # (  ) S
+(var) K
+( self = ) p
+(this) k
+(;) p n
+(6) # (  setInterval\(function\(\) {) N
+(7) # (    self.emit\(') S
+(tick) str
+('\);) p n
+(8) # (  }, 1000\);) N
+(9) # (  setInterval\(function\(\) {) N
+(10) # (    self.emit\(') S
+(tock) str
+('\);) p n
+(11) # (  }, 5000\);) N
+(12) # () N
+(13) # (}) N
+(14) # () N
+(15) # (util.inherits\(Ticker, eventEmitter\);) N
+(16) # () N
+(17) # (module.exports = Ticker;) N
+(testEventEmitter.js) (Page 1/1) (Nov 28, 16 5:57) title
+border
+/v 1 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (module.exports =  {) p n
+(2) # (   sayHi: function \(\) { console.log\(") S
+(Hi) str
+("\); },) p n
+(3) # () N
+(4) # (   filterDirectory: function\(dir, ext, callback\) {) N
+(5) # (     ) S
+(var) K
+( fs = require\(') p
+(fs) str
+('\);) p n
+(6) # (     ) S
+(var) K
+( path = require\(') p
+(path) str
+('\);) p n
+(7) # () N
+(8) # (     ) S
+(var) K
+( filterArray = [];) p n
+(9) # () N
+(10) # (     fs.readdir\(dir, function\(err, data\) {) N
+(11) # () N
+(12) # (        ) S
+(if) K
+( \(err\) {) p n
+(13) # (           callback\(err\);) N
+(14) # (        }) N
+(15) # (        ) S
+(else) K
+( {) p n
+(16) # (        ) N
+(17) # (          ) S
+(for) K
+( \(i=0; i < data.length; i++\) {) p n
+(18) # (            ) S
+(if) K
+(\(path.extname\(data[i]\) === ext\){) p n
+(19) # (              filterArray.push\(data[i]\);) N
+(20) # (            }) N
+(21) # () N
+(22) # (          }) N
+(23) # () N
+(24) # (          callback\() S
+(null) k
+(, filterArray\);) p n
+(25) # (        }) N
+(26) # () N
+(27) # (     }\);) N
+(28) # () N
+(29) # () N
+(30) # (   }) N
+(31) # () N
+(32) # () N
+(33) # () N
+(34) # (}) N
+(testMod.js) (Page 1/1) (Nov 28, 16 14:44) title
+border
+grestore
+(Printed by Simanta Mitra) rhead
+(./1_modules/testEventEmitter.js, ./1_modules/testMod.js) (5/15) (Monday April 10, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1,1) 6
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # () p n
+(2) # () N
+(3) # (module.exports = {) N
+(4) # () N
+(5) # (  sayHello: function\(\) {) N
+(6) # (    console.log\(") S
+(Hello) str
+("\);) p n
+(7) # (  },) N
+(8) # () N
+(9) # (  filterDirectory: function\(dir, ext, callback\) {) N
+(10) # (     ) S
+(var) K
+( fs = require\(') p
+(fs) str
+('\);) p n
+(11) # (     ) S
+(var) K
+( path = require\(') p
+(path) str
+('\);) p n
+(12) # (     ) S
+(var) K
+( retValue = [];) p n
+(13) # () N
+(14) # (     fs.readdir\(dir, function\(err, data\) {) N
+(15) # (        ) S
+(for) K
+( \(i=0; i<data.length; i++\) {) p n
+(16) # (          ) S
+(// retValue = data.filter\(function\(f\) {) c n
+(17) # () S
+(          ) p
+(//    return path.extname\(f\) === '.' + ext) c n
+(18) # () S
+(          ) p
+(// }\);) c n
+(19) # () S
+(          ) p
+(if) K
+( \(path.extname\(data[i]\) === ') p
+(.) str
+(' + ext\) {) p n
+(20) # (            retValue.push\(data[i]\);) N
+(21) # (          }) N
+(22) # (        }) N
+(23) # (        callback\() S
+(null) k
+(,retValue\);) p n
+(24) # () N
+(25) # (     }\);) N
+(26) # () N
+(27) # () N
+(28) # (  }) N
+(29) # () N
+(30) # () N
+(31) # () N
+(32) # () N
+(33) # () N
+(34) # () N
+(35) # (};) N
+(testModule.js) (Page 1/1) (Nov 28, 16 5:33) title
+border
+/v 1 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose of this file is to show difference between) N
+(3) # (// normal synchronous calls - where we have to WAIT for i/o) N
+(4) # (// and callbacks where we do not have to wait for i/o) N
+(5) # (//) N
+(6) # (// readFileSync is a normal wait call \(as in java\)) N
+(7) # (// readFile takes in a callback.) N
+(8) # (//) N
+(9) # (// In the modules example, we had created a "filterDirectory") N
+(10) # (// function that accepted a callback.) N
+(11) # (//) N
+(12) # (// TO RUN THIS EXAMPLE) N
+(13) # (// 1. type node countNewLines.js on the command line) N
+(14) # (//---------------------------------------------------------------) N
+(15) # () S
+(var) K
+( fs = require\(') p
+(fs) str
+('\);) p n
+(16) # () N
+(17) # () S
+(// SYNCHRONOUS CALL -------------) c n
+(18) # () S
+(console.log\(") p
+(\\n- Testing Synchronous call -) str
+("\);) p n
+(19) # () S
+(var) K
+( buf = fs.readFileSync\(") p
+(hello.txt) str
+("\); ) p n
+(20) # () S
+(// cannot do the next statement until the previous one is done.) c n
+(21) # () S
+(var) K
+( sArray = buf.toString\(\).split\(") p
+(\\n) str
+("\);) p n
+(22) # (console.log\(") S
+(The number of lines in file is : ) str
+(", sArray.length-1\);) p n
+(23) # (console.log\(") S
+(\\n\\n) str
+("\);) p n
+(24) # () N
+(25) # () N
+(26) # () S
+(// ASYNC CALL --------------------) c n
+(27) # () S
+(console.log\(") p
+(\\n- Testing ASynchronous call -) str
+("\);) p n
+(28) # () S
+(var) K
+( buf = fs.readFile\(") p
+(hello.txt) str
+(", ) p n
+(29) # (  function\(err, data\) {) N
+(30) # (    ) S
+(var) K
+( sArray = data.toString\(\).split\(") p
+(\\n) str
+("\);) p n
+(31) # (    console.log\(") S
+(The number of lines in file is : ) str
+(", sArray.length-1\);) p n
+(32) # (} \);) N
+(33) # (console.log\(") S
+(We do not wait for the i/o. The callback is called when i/o is done!) str
+("\);) p n
+(34) # (console.log\(") S
+(So we are printed out of sequence! Cool?) str
+("\);) p n
+(countNewLines.js) (Page 1/1) (Nov 15, 15 22:07) title
+border
+grestore
+(Printed by Simanta Mitra) rhead
+(./1_modules/testModule.js, ./2_callbackPattern/countNewLines.js) (6/15) (Monday April 10, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1,1) 7
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose is to show how EVENTS based programming is done in node) N
+(3) # (// In this example, createReadStream fires different events and ) N
+(4) # (// we program event-handlers.) N
+(5) # (//) N
+(6) # (// Events thrown:) N
+(7) # (// error  - when error is encountered) N
+(8) # (// data   - when data chunk is read. Several data events can be thrown) N
+(9) # (// end    - when entire stream has been read) N
+(10) # (//) N
+(11) # (// TO RUN THIS EXAMPLE) N
+(12) # (// 1. type readAsyncEmit.js on the command line) N
+(13) # (//---------------------------------------------------------------) N
+(14) # () S
+(  ) p n
+(15) # () S
+(var) K
+( fs = require\(') p
+(fs) str
+('\);) p n
+(16) # () S
+(var) K
+( file = fs.createReadStream\(') p
+(./) str
+(' + ") p
+(hello.txt) str
+("\);) p n
+(17) # () N
+(18) # (file.on\(') S
+(error) str
+(', function\(err\) {  ) p
+(// attach handler using on) c n
+(19) # () S
+(  console.log\(") p
+(-- Error:) str
+(" + err + ") p
+( --) str
+("\);) p n
+(20) # (  ) S
+(throw) K
+( err;) p n
+(21) # (}\);) N
+(22) # () N
+(23) # (file.on\(') S
+(data) str
+(', function\(data\) {) p n
+(24) # (  console.log\(") S
+(-- Data event handler1 --) str
+("\);) p n
+(25) # (  console.log\("" + data\); ) S
+(// "" + converts Buffer to string) c n
+(26) # () S
+(}\);) p n
+(27) # () N
+(28) # (file.on\(') S
+(data) str
+(', function\(data\) { ) p
+(// example of handling multiple handlers) c n
+(29) # () S
+(                                 ) p
+(// for the the same event) c n
+(30) # () S
+(  console.log\(") p
+(-- Data event handler2 --) str
+("\);) p n
+(31) # (  console.log\(") S
+(read ) str
+(", data.length, ") p
+(chars) str
+("\);) p n
+(32) # (}\);) N
+(33) # () N
+(34) # (file.on \(') S
+(end) str
+(', function\(\) {) p n
+(35) # (  console.log\(") S
+(-- End event handler --) str
+("\);) p n
+(36) # (  console.log\(") S
+(finished reading all of data) str
+("\);) p n
+(37) # (}\);) N
+(1_readAsyncEmit.js) (Page 1/1) (Nov 15, 15 22:08) title
+border
+/v 1 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose here is to create your very own emitter!) N
+(3) # (// Users of your program will be able to add listeners and handle ) N
+(4) # (// events that are fired from YOUR program) N
+(5) # (// util allows you to use inherits functionality) N
+(6) # (// events allow you to use the emit functionality) N
+(7) # (//---------------------------------------------------------------) N
+(8) # () N
+(9) # () S
+(var) K
+( eventEmitter = require\(') p
+(events) str
+('\)) p n
+(10) # () N
+(11) # () S
+(class) K
+( Ticker ) p
+(extends) K
+( eventEmitter {) p n
+(12) # () N
+(13) # (  foo\(\) {) N
+(14) # (    ) S
+(var) K
+( self = ) p
+(this) k
+(;) p n
+(15) # (    ) S
+(var) K
+( count= 0;) p n
+(16) # (    setInterval \(function\(\) {) N
+(17) # (       self.emit\(') S
+(tick) str
+(', ++count\);) p n
+(18) # (       ) S
+(if) K
+( \(count % 10 == 0\) self.emit\(') p
+(dong) str
+('\);) p n
+(19) # (    }, 1\) ;) N
+(20) # (  }) N
+(21) # () N
+(22) # (};) N
+(23) # () S
+(// Our function will emit TWO events) c n
+(24) # (// dong - this will be fired on every TEN ticks) N
+(25) # (// tick - this will also send info on how many times tick was fired) N
+(26) # (// ** NOTE how tick sends back a parameter to the listener too!) N
+(27) # () N
+(28) # () N
+(29) # () S
+(module.exports = Ticker;) p n
+(30) # () N
+(2_myEmitter.js) (Page 1/1) (Nov 29, 16 14:58) title
+border
+grestore
+(Printed by Simanta Mitra) rhead
+(./3_emitPattern/1_readAsyncEmit.js, ./3_emitPattern/2_myEmitter.js) (7/15) (Monday April 10, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1,1) 8
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose of this program is to check if our emitter) N
+(3) # (// was working properly!) N
+(4) # (//) N
+(5) # (// TO RUN THIS EXAMPLE) N
+(6) # (// 1. type node 3_testEmitter.js on the command line) N
+(7) # (//---------------------------------------------------------------) N
+(8) # () S
+(function) K
+( ) p
+(sleepFor) l
+(\( sleepDuration \){) p n
+(9) # (    ) S
+(var) K
+( now = ) p
+(new) K
+( Date\(\).getTime\(\);) p n
+(10) # (    ) S
+(while) K
+(\() p
+(new) K
+( Date\(\).getTime\(\) < now + sleepDuration\){ ) p
+(/* do nothing */) c
+( } ) p n
+(11) # (}) N
+(12) # () N
+(13) # () S
+(var) K
+( Ticker = require\(") p
+(./2_myEmitter) str
+("\); ) p
+(// that's a function) c n
+(14) # () N
+(15) # () S
+(var) K
+( start =  ) p
+(new) K
+( Date\(\).getTime\(\);) p n
+(16) # () S
+(var) K
+( ticker = ) p
+(new) K
+( Ticker\(\); ) p
+(// here we construct an object) c n
+(17) # () S
+(ticker.foo\(\);) p n
+(18) # () S
+(var) K
+( tickerOn=  ) p
+(new) K
+( Date\(\).getTime\(\);) p n
+(19) # () N
+(20) # (sleepFor\(1000\);) N
+(21) # () N
+(22) # () S
+(// attach handlers) c n
+(23) # (//console.log\("time till tickerOn: "+\(tickerOn-start\)\);) N
+(24) # () S
+(ticker.on \(') p
+(tick) str
+(', function\(cnt\) {) p n
+(25) # (   ) S
+(var) K
+( end =  ) p
+(new) K
+( Date\(\).getTime\(\);) p n
+(26) # (   console.log\(") S
+(time till ding) str
+(" + cnt + ") p
+(: ) str
+("+\(end-tickerOn\)\);) p n
+(27) # (}\);) N
+(28) # () N
+(29) # (setTimeout\(function\(\) {) N
+(30) # (ticker.on \(') S
+(dong) str
+(', function\(\) {) p n
+(31) # (   ) S
+(var) K
+( end =  ) p
+(new) K
+( Date\(\).getTime\(\);) p n
+(32) # (   console.log\(") S
+(time till dong: ) str
+("+\(end-tickerOn\)\);) p n
+(33) # (}\);) N
+(34) # (}, 500\);) N
+(35) # () N
+(36) # () S
+(var) K
+( end =  ) p
+(new) K
+( Date\(\).getTime\(\);) p n
+(37) # (console.log\(") S
+(time till end: ) str
+("+\(end-start\)\);) p n
+(3_testEmitter.js) (Page 1/1) (Nov 29, 16 17:12) title
+border
+/v 1 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (var) K
+( eventEmitter = require\(') p
+(events) str
+('\);) p n
+(2) # () N
+(3) # () S
+(class) K
+( Ticker ) p
+(extends) K
+( eventEmitter {) p n
+(4) # () N
+(5) # (  foo\(\) {) N
+(6) # (    ) S
+(var) K
+( self=) p
+(this) k
+(;) p n
+(7) # (    ) S
+(var) K
+( count = 0;) p n
+(8) # (    setInterval\(function\(\) {) N
+(9) # (      count++;) N
+(10) # (      self.emit\(') S
+(tick) str
+(', count\);) p n
+(11) # (      ) S
+(if) K
+( \(count == 10\) {) p n
+(12) # (        self.emit\(') S
+(tock) str
+('\);) p n
+(13) # (        count=0;) N
+(14) # (      }) N
+(15) # (    }, 100\);) N
+(16) # (  }) N
+(17) # () N
+(18) # (}) N
+(19) # () N
+(20) # (module.exports = Ticker;) N
+(21) # () N
+(22) # () N
+(testEmitter.js) (Page 1/1) (Nov 30, 16 14:41) title
+border
+grestore
+(Printed by Simanta Mitra) rhead
+(./3_emitPattern/3_testEmitter.js, ./3_emitPattern/testEmitter.js) (8/15) (Monday April 10, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1,1) 9
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # () p n
+(2) # () S
+(var) K
+( Ticker = require\(') p
+(./testEmitter.js) str
+('\);) p n
+(3) # () N
+(4) # () S
+(var) K
+( t = ) p
+(new) K
+( Ticker\(\);) p n
+(5) # () N
+(6) # (t.foo\(\);) N
+(7) # () N
+(8) # (t.on\(') S
+(tick) str
+(', function\(d\) {) p n
+(9) # (  console.log\(") S
+(--- Tick --- ) str
+(" + d\);) p n
+(10) # (}\);) N
+(11) # () N
+(12) # (t.on\(') S
+(tock) str
+(', function\(\) {) p n
+(13) # (  console.log\(") S
+(--- Tock --- ) str
+("\);) p n
+(14) # (}\);) N
+(15) # () N
+(16) # (console.log\(") S
+(The end) str
+("\);) p n
+(17) # () N
+(testMyEmitter.js) (Page 1/1) (Nov 30, 16 14:34) title
+border
+/v 1 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose is to show use of setTimeout function) N
+(3) # (//) N
+(4) # (// TO RUN THIS EXAMPLE) N
+(5) # (// 1. type node 1_timer.js on the command line) N
+(6) # (//---------------------------------------------------------------) N
+(7) # () N
+(8) # (// setTimeout just calls the function when the time runs out.) N
+(9) # () S
+(console.log\(") p
+(-- Starting setTimeout --) str
+("\);) p n
+(10) # () S
+(var) K
+( diff = 0, d = ) p
+(new) K
+( Date\(\);) p n
+(11) # () S
+(var) K
+( timer = setTimeout\(function\(\) {) p n
+(12) # (  diff = ) S
+(new) K
+( Date\(\) - d;) p n
+(13) # (  console.log\(") S
+(timed out after: ) str
+(" + diff + ") p
+(ms) str
+("\);) p n
+(14) # (}, 2000\); ) N
+(1_timer.js) (Page 1/1) (Nov 15, 15 22:09) title
+border
+grestore
+(Printed by Simanta Mitra) rhead
+(./3_emitPattern/testMyEmitter.js, ./4_timers/1_timer.js) (9/15) (Monday April 10, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1,1) 10
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose is to show use of setInterval function) N
+(3) # (//) N
+(4) # (// TO RUN THIS EXAMPLE) N
+(5) # (// 1. type node 2_timer.js on the command line) N
+(6) # (//---------------------------------------------------------------) N
+(7) # () N
+(8) # (// setInterval calls the function repeatedly at intervals) N
+(9) # () S
+(console.log\(") p
+(-- Starting setInterval --) str
+("\);) p n
+(10) # () S
+(var) K
+( diff = 0, d = ) p
+(new) K
+( Date\(\);) p n
+(11) # () S
+(var) K
+( timer = setInterval\(function\(\) {) p n
+(12) # (  diff = ) S
+(new) K
+( Date\(\) - d;) p n
+(13) # (  console.log\(") S
+(callback called after: ) str
+(" + diff + ") p
+(ms) str
+("\);) p n
+(14) # (  d= ) S
+(new) K
+( Date\(\);) p n
+(15) # (}, 2000\); ) N
+(2_timer.js) (Page 1/1) (Nov 15, 15 22:09) title
+border
+/v 1 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose is to show how to sequence repeated calls using timeout ) N
+(3) # (// so that they do not overlap) N
+(4) # (// This is a technique by which the next run of a task is started some) N
+(5) # (// fixed interval AFTER a previous run is completed ) N
+(6) # (//) N
+(7) # (// Key idea is that setInterval might not have worked because once in a) N
+(8) # (// while the someRandomTimeFunction would run longer than the firing) N
+(9) # (// interval and so you could have overlaps of the function execution) N
+(10) # (//) N
+(11) # (// TO RUN THIS EXAMPLE) N
+(12) # (// 1. type node 3_timer.js on the command line) N
+(13) # (// wait for at least 30 seconds.) N
+(14) # (//---------------------------------------------------------------) N
+(15) # () N
+(16) # () N
+(17) # () S
+(function) K
+( ) p
+(someRandomTimeLongFunction) l
+(\(callback\) {) p n
+(18) # (  console.log\(") S
+(start task) str
+("\);) p n
+(19) # (  ) S
+(// do something) c n
+(20) # () S
+(  ) p
+(// then call the callback) c n
+(21) # () S
+(  callback\(\);) p n
+(22) # (}) N
+(23) # () N
+(24) # (console.log\(") S
+(-- starting sequence --) str
+("\);) p n
+(25) # (\() S
+(function) K
+( ) p
+(schedule) l
+(\(\) {) p n
+(26) # (  setTimeout\(function \(\) {) N
+(27) # (    someRandomTimeLongFunction\(function\(\) {) N
+(28) # (      console.log\(") S
+(completed task) str
+("\);) p n
+(29) # (      schedule\(\);) N
+(30) # (    }\);) N
+(31) # (  }, 5000\);) N
+(32) # (}\(\)\);) N
+(33) # () N
+(34) # () N
+(3_timer.js) (Page 1/1) (Nov 15, 15 22:10) title
+border
+grestore
+(Printed by Simanta Mitra) rhead
+(./4_timers/2_timer.js, ./4_timers/3_timer.js) (10/15) (Monday April 10, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1,1) 11
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose is to show use of nodejs's Buffer class) N
+(3) # (// This is important as javascript cannot handle binary and) N
+(4) # (// so this is a mechanism to handle binary data) N
+(5) # (// Each buffer corresponds to some RAW memory allocated outside of V8) N
+(6) # (// engine which stores things in binary. Basically BYTEs of data) N
+(7) # (//) N
+(8) # (// TO RUN THIS EXAMPLE) N
+(9) # (// 1. type node 1_buffer.js on the command line) N
+(10) # (//---------------------------------------------------------------) N
+(11) # () N
+(12) # (//- Example 1) N
+(13) # () S
+(var) K
+( buf = ) p
+(new) K
+( Buffer\(") p
+(Hello World) str
+(", ") p
+(ascii) str
+("\); ) p
+(// ascii is 8 bit) c n
+(14) # () S
+(console.log\(buf\);) p n
+(15) # () S
+(// prints <Buffer 48 65 6c 6c 6f 20 57 6f 72 6c 64>) c n
+(16) # (// converts ascii to binary) N
+(17) # () S
+(  ) p n
+(18) # () S
+(//- Example 2) c n
+(19) # () S
+(buf = ) p
+(new) K
+( Buffer\(") p
+(Hello World) str
+("\); ) p
+(// utf-8) c n
+(20) # () S
+(console.log\(buf\);) p n
+(21) # () S
+(// <Buffer 48 65 6c 6c 6f 20 57 6f 72 6c 64>) c n
+(22) # (// converts utf-8 to binary) N
+(23) # () N
+(24) # (//- Example 3) N
+(25) # () S
+(buf = ) p
+(new) K
+( Buffer\(") p
+(SGVsbG8gV29ybGQ=) str
+(",') p
+(base64) str
+('\);) p n
+(26) # (console.log\(buf\);) N
+(27) # () S
+(// <Buffer 48 65 6c 6c 6f 20 57 6f 72 6c 64>) c n
+(28) # (// converts base64 to binary) N
+(29) # (// Note that SGVsbG8gV29ybGQ= in base64 is Hello World in ascii) N
+(30) # () N
+(31) # (//- Example 4) N
+(32) # () S
+(buf = ) p
+(new) K
+( Buffer\(") p
+(K\303\266lni\340\244M-^D) str
+("\); ) p
+(// utf-8 is a multi-byte encoding) c n
+(33) # () S
+(console.log\(buf\);) p n
+(34) # () S
+(//<Buffer 4b | c3 b6 | 6c | 6e | 69 | e0 a4 84 |>) c n
+(35) # (// converts utf-8 to binary. Note that utf-8 is a multi-byte encoding) N
+(36) # () N
+(37) # (//- Example 5) N
+(38) # () S
+(buf = ) p
+(new) K
+( Buffer\(") p
+(8b76fde713ce) str
+(",') p
+(base64) str
+('\); ) p
+(// base64 is 6-bit encoding) c n
+(39) # () S
+(console.log\(buf\);) p n
+(40) # () S
+(//<Buffer f1 be fa 7d d7 bb d7 77 1e>) c n
+(41) # (// Here is the explanation) N
+(42) # (// 8 is 60  and b is 27 \(from base64 table\)) N
+(43) # (// 60 is 111100 and 27 is 011011) N
+(44) # (// 111100 concatenated with 011011 gives 1111 0001 1101 etc) N
+(45) # (// same as f 1 b  ... etc) N
+(46) # () N
+(47) # () N
+(48) # (//---------------------------------------------------------------) N
+(49) # (// OTHER BUFFER OPERATIONS) N
+(50) # (//---------------------------------------------------------------) N
+(51) # (//var buf = new Buffer\(1024\); // 1024 random bytes \(not zeroed\)) N
+(52) # (//buf.length // gives length of a buffer) N
+(53) # (//buf.slice\(8,10\);  // gives a new buffer from the given indices inclusive) N
+(54) # (//buf.copy\(target,target start, source start, source end\);) N
+(55) # (//buf.toString\(\) // converts binary to utf string) N
+(56) # (//buf.toString\('base64'\); // converts binary to base64) N
+(57) # (//console.log\(buf[10]\); // this is how one can access a byte) N
+(58) # () N
+(59) # () N
+(1_buffer.js) (Page 1/1) (Nov 29, 16 21:16) title
+border
+/v 1 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose is to state that nodejs has readStreams and writeStreams) N
+(3) # (// These are used in a variety of situations for example when) N
+(4) # (// reading data from a file or from a socket.) N
+(5) # (//) N
+(6) # (// readStreams do not block) N
+(7) # (// readStreams have three events) N
+(8) # (// data) N
+(9) # (// error) N
+(10) # (// end) N
+(11) # (//) N
+(12) # (// readStreams also have a pause\(\) and a resume\(\) method.) N
+(13) # (// We will not use these here.) N
+(14) # (//) N
+(15) # (// TO RUN THIS EXAMPLE) N
+(16) # (// 1. type node 1_readStreams.js on the command line) N
+(17) # (//---------------------------------------------------------------) N
+(18) # () N
+(19) # () S
+(var) K
+( fs = require\(') p
+(fs) str
+('\);) p n
+(20) # () S
+(var) K
+( rs = fs.createReadStream\(") p
+(hello.txt) str
+("\); ) p
+(// default is buffer) c n
+(21) # () N
+(22) # (//attach handler for data event) N
+(23) # () S
+(rs.on\(') p
+(data) str
+(', function\(data\) {) p n
+(24) # (  console.log\(") S
+(READ DATA FROM STREAM-1!) str
+("\);) p n
+(25) # (  console.log\(data\); ) S
+(// note this is a buffer) c n
+(26) # () S
+(}\);) p n
+(27) # () N
+(28) # () S
+(//attach handler for end event) c n
+(29) # () S
+(rs.on\(') p
+(end) str
+(', function\(\) {) p n
+(30) # (  console.log\(") S
+(DONE READING STREAM-1 OF DATA!) str
+("\);) p n
+(31) # (}\);) N
+(32) # () N
+(33) # () N
+(34) # () N
+(35) # () S
+(var) K
+( rs2 = fs.createReadStream\(") p
+(hello.txt) str
+("\); ) p n
+(36) # () S
+(// Note that there are many options that can be set when reading) c n
+(37) # (// or writing - including specifying the data encoding of the file) N
+(38) # (// and also which byte is to be read etc.) N
+(39) # () S
+(rs2.setEncoding\(') p
+(base64) str
+('\);) p n
+(40) # (  ) N
+(41) # () S
+(//attach handler for ) c n
+(42) # () S
+(rs2.on\(') p
+(data) str
+(', function\(data\) {) p n
+(43) # (  console.log\(") S
+(READ DATA FROM STREAM-2!) str
+("\);) p n
+(44) # (  console.log\(data\); ) S
+(// base64 string) c n
+(45) # () S
+(}\);) p n
+(46) # () N
+(47) # () S
+(//attach handler) c n
+(48) # () S
+(rs2.on\(') p
+(end) str
+(', function\(\) {) p n
+(49) # (  console.log\(") S
+(DONE READING STREAM-2 OF DATA!) str
+("\);) p n
+(50) # (}\);) N
+(1_readStreams.js) (Page 1/1) (Nov 15, 15 22:11) title
+border
+grestore
+(Printed by Simanta Mitra) rhead
+(./5_Buffers/1_buffer.js, ./6_readStreams/1_readStreams.js) (11/15) (Monday April 10, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1,1) 12
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose is to state that nodejs has writeStreams) N
+(3) # (// These are used in a variety of situations for example when) N
+(4) # (// writing data to a file or to a socket) N
+(5) # (//) N
+(6) # (// writeStreams do not block.) N
+(7) # (// ) N
+(8) # (// They have a drain event \(which basically means that the ) N
+(9) # (// data has been flushed\)) N
+(10) # (// We will not use it here.) N
+(11) # (//) N
+(12) # (// TO RUN THIS EXAMPLE) N
+(13) # (// 1. type node 1_writeStreams.js on the command line) N
+(14) # (//---------------------------------------------------------------) N
+(15) # () N
+(16) # () S
+(var) K
+( fs = require\(') p
+(fs) str
+('\);) p n
+(17) # () S
+(var) K
+( ws = fs.createWriteStream\(") p
+(helloOut.txt) str
+("\); ) p n
+(18) # () N
+(19) # (ws.write\(") S
+(Hello World) str
+("\); ) p
+(//writes as utf-8 encoded) c n
+(20) # () S
+(ws.write\(") p
+(Hello World) str
+(", ") p
+(base64) str
+("\); ) p
+(//writes as base64 encoded) c n
+(21) # () S
+(ws.write\() p
+(new) K
+( Buffer\(") p
+(Hello World) str
+("\)\); ) p
+(// writes as utf-8 encoded) c n
+(22) # () S
+(console.log\(") p
+(-- DONE writing --) str
+("\);) p n
+(23) # () N
+(24) # (console.log\(") S
+(Now INSPECT contents of helloOut.txt by typing) str
+("\);) p n
+(25) # (console.log\(") S
+(od -t xC -c helloOut.txt) str
+("\);) p n
+(26) # (console.log\(") S
+(// this means show one Character at a time in hexadecimal and as char) str
+("\);) p n
+(1_writeStreams.js) (Page 1/1) (Nov 15, 15 22:12) title
+border
+/v 1 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose is to show how to build a http server using nodejs) N
+(3) # (//) N
+(4) # (// http servers fire a 'request' event) N
+(5) # (//) N
+(6) # (// TO RUN THIS EXAMPLE) N
+(7) # (// 1. type node 1_httpServer.js on the command line) N
+(8) # (// 2. type http://localhost:4000 on a browser) N
+(9) # (//---------------------------------------------------------------) N
+(10) # () N
+(11) # () N
+(12) # () S
+(var) K
+( http = require\(') p
+(http) str
+('\);) p n
+(13) # () S
+(var) K
+( server = http.createServer\(\);) p n
+(14) # () N
+(15) # () S
+(// attach handler) c n
+(16) # () S
+(server.on\(') p
+(request) str
+(', function \(request,response\) {) p n
+(17) # (  response.writeHead\(200, {') S
+(Content-Type) str
+(': ') p
+(text/plain) str
+('}\); ) p
+(// header) c n
+(18) # () S
+(  response.write\(') p
+(Hello World) str
+('\); ) p
+(// data) c n
+(19) # () S
+(  response.end\(\); ) p
+(// done - send the data) c n
+(20) # () S
+(}\);) p n
+(21) # () N
+(22) # (server.listen\(4000\);) N
+(1_httpServer.js) (Page 1/1) (Nov 15, 15 22:02) title
+border
+grestore
+(Printed by Simanta Mitra) rhead
+(./7_writeStreams/1_writeStreams.js, ./8_HttpServer/1_httpServer.js) (12/15) (Monday April 10, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1,1) 13
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose is to understand the request object) N
+(3) # (//) N
+(4) # (// request.url -- requested URL as string) N
+(5) # (// request.method -- POST/GET etc) N
+(6) # (// request.headers -- like host, connection, etc) N
+(7) # (//) N
+(8) # (// you can LISTEN for the body of the request by attaching handler) N
+(9) # (// it is just a readStream!) N
+(10) # (//) N
+(11) # (// TO RUN THIS EXAMPLE) N
+(12) # (// 1. type node 1_httpServer.js on the command line) N
+(13) # (// 2. type http://localhost:4000 on a browser) N
+(14) # (//---------------------------------------------------------------) N
+(15) # () N
+(16) # () N
+(17) # () S
+(var) K
+( util = require\(') p
+(util) str
+('\);) p n
+(18) # () S
+(var) K
+( http = require\(') p
+(http) str
+('\);) p n
+(19) # () S
+(var) K
+( server = http.createServer\(\);) p n
+(20) # () N
+(21) # () S
+(// attach handler) c n
+(22) # () S
+(server.on\(') p
+(request) str
+(', function \(request,response\) {) p n
+(23) # (  ) S
+(// attach handler to get BODY of request) c n
+(24) # () S
+(  ) p
+(// this will be mostly from forms etc) c n
+(25) # () S
+(  ) p
+(// or on post) c n
+(26) # () S
+(  request.on\(') p
+(data) str
+(', function\(data\) {) p n
+(27) # (    console.log\(") S
+(Got data from client: ) str
+(",data\);) p n
+(28) # (  }\);) N
+(29) # () N
+(30) # (  response.writeHead\(200, {') S
+(Content-Type) str
+(': ') p
+(text/plain) str
+('}\); ) p
+(// header) c n
+(31) # () N
+(32) # () S
+(  ) p
+(// see what all information is sent in the request object from) c n
+(33) # () S
+(  ) p
+(// the browser!) c n
+(34) # () S
+(  response.write\(util.inspect\(request\)\);) p n
+(35) # (  response.end\(\); ) S
+(// done - send the data) c n
+(36) # () S
+(}\);) p n
+(37) # () N
+(38) # (server.listen\(4000\);) N
+(2_httpServer.js) (Page 1/1) (Nov 15, 15 22:02) title
+border
+/v 1 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose is to understand the response object) N
+(3) # (//) N
+(4) # (// response.writeHead -- write Header) N
+(5) # (// ONLY WORKS BEFORE a response.write) N
+(6) # (//) N
+(7) # (// Here we will send a chunked response back to the client) N
+(8) # (// This is by default for nodejs when Content-Length header is not set) N
+(9) # (// send response.end\(\) closes the connection) N
+(10) # (//) N
+(11) # (// TO RUN THIS EXAMPLE) N
+(12) # (// 1. type node 1_httpServer.js on the command line) N
+(13) # (// 2. type http://localhost:4000 on a browser) N
+(14) # (//---------------------------------------------------------------) N
+(15) # () N
+(16) # () N
+(17) # () S
+(var) K
+( util = require\(') p
+(util) str
+('\);) p n
+(18) # () S
+(var) K
+( http = require\(') p
+(http) str
+('\);) p n
+(19) # () S
+(var) K
+( server = http.createServer\(\);) p n
+(20) # () N
+(21) # () S
+(// attach handler) c n
+(22) # () S
+(server.on\(') p
+(request) str
+(', function \(request,response\) {) p n
+(23) # () N
+(24) # (  response.writeHead\(200, {') S
+(Content-Type) str
+(': ') p
+(text/html) str
+('}\); ) p
+(// header) c n
+(25) # () N
+(26) # () S
+(  ) p
+(var) K
+( left = 10;) p n
+(27) # (  ) S
+(var) K
+( interval = setInterval \(function \(\) {) p n
+(28) # (    ) S
+(for) K
+( \() p
+(var) K
+( i = 0; i < 10; i++\) {) p n
+(29) # (      response.write\(left + ") S
+(:) str
+(" + Date.now\(\) + ") p
+( ) str
+("\);) p n
+(30) # (    }) N
+(31) # (    response.write\(") S
+(<br>) str
+("\); ) p
+(// new line in html) c n
+(32) # () S
+(    ) p
+(if) K
+( \(left-- === 0\) {) p n
+(33) # (      clearInterval\(interval\); ) S
+(// stop the timer!) c n
+(34) # () S
+(      response.end\(\);) p n
+(35) # (    }) N
+(36) # (  }, 1000\);) N
+(37) # () N
+(38) # (}\);) N
+(39) # () N
+(40) # (server.listen\(4000\);) N
+(3_httpServer.js) (Page 1/1) (Nov 15, 15 22:02) title
+border
+grestore
+(Printed by Simanta Mitra) rhead
+(./8_HttpServer/2_httpServer.js, ./8_HttpServer/3_httpServer.js) (13/15) (Monday April 10, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1,1) 14
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose is to serve a file!) N
+(3) # (//) N
+(4) # (// TO RUN THIS EXAMPLE) N
+(5) # (// 1. type node 1_httpServer.js on the command line) N
+(6) # (// 2. type http://localhost:4000/index.html  on a browser) N
+(7) # (// 3. type http://localhost:4000/3_httpServer.js  on a browser) N
+(8) # (//---------------------------------------------------------------) N
+(9) # () N
+(10) # () N
+(11) # () S
+(var) K
+( util = require\(') p
+(util) str
+('\);) p n
+(12) # () S
+(var) K
+( path = require\(') p
+(path) str
+('\);) p n
+(13) # () S
+(var) K
+( http = require\(') p
+(http) str
+('\);) p n
+(14) # () S
+(var) K
+( fs   = require\(') p
+(fs) str
+('\);) p n
+(15) # () S
+(var) K
+( server = http.createServer\(\);) p n
+(16) # () N
+(17) # () S
+(// attach handler) c n
+(18) # () S
+(server.on\(') p
+(request) str
+(', function \(req,res\) {) p n
+(19) # (  ) S
+(var) K
+( file = path.normalize\(') p
+(.) str
+(' + req.url\);) p n
+(20) # () N
+(21) # (  fs.exists\(file, function\(exists\) {) N
+(22) # (    ) S
+(if) K
+( \(exists\) {) p n
+(23) # (      ) S
+(var) K
+( rs = fs.createReadStream\(file\);) p n
+(24) # () N
+(25) # (      rs.on\(') S
+(error) str
+(', function\(\) {) p n
+(26) # (        res.writeHead\(500\); ) S
+(// error status) c n
+(27) # () S
+(        res.end\(') p
+(Internal Server Error) str
+('\);) p n
+(28) # (      }\);) N
+(29) # () N
+(30) # () N
+(31) # (      res.writeHead\(200\); ) S
+(// ok status) c n
+(32) # () N
+(33) # () S
+(      ) p
+(// PIPE the read stream with the RESPONSE stream) c n
+(34) # () S
+(      rs.pipe\(res\);) p n
+(35) # (    } ) N
+(36) # (    ) S
+(else) K
+( {) p n
+(37) # (      res.writeHead\(404\); ) S
+(// error status) c n
+(38) # () S
+(      res.end\(') p
+(NOT FOUND) str
+('\);) p n
+(39) # (    }) N
+(40) # (  }\);) N
+(41) # () N
+(42) # (}\); ) S
+(// end server on handler) c n
+(43) # () N
+(44) # () S
+(server.listen\(4000\);) p n
+(4_httpServer.js) (Page 1/1) (Nov 15, 15 22:04) title
+border
+/v 1 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose of this example is to show how to create a simple) N
+(3) # (// chat server using nodejs) N
+(4) # (//) N
+(5) # (// After a server is created, it fires three events) N
+(6) # (// error   -- some error has occurred) N
+(7) # (// close   -- server is shutting down!) N
+(8) # (// connection -- some client has connected) N
+(9) # (//) N
+(10) # (// When connection, a socket that connects the CLIENT and the server is) N
+(11) # (// accessible. This socket fires two events ) N
+(12) # (// data -- this is fired whenever a data chunk is read by the server ) N
+(13) # (// close -- this is fired when the socket is being closed) N
+(14) # (//) N
+(15) # (// socket acts like a readStream and a writeStream.) N
+(16) # (// so, the socket.write\(\) method can be used to write to the client.) N
+(17) # (//) N
+(18) # (// server has a listen method \(which is like java's accept method) N
+(19) # (// except that it is non-blocking\)) N
+(20) # (//) N
+(21) # (// TO RUN THIS EXAMPLE) N
+(22) # (// 1. type node 1_tcp.js on the command line) N
+(23) # (// 2. open mutiple terminals. On each of them open a telnet session) N
+(24) # (//    telnet localhost 4001) N
+(25) # (//) N
+(26) # (//    type in some text on the telnet terminals) N
+(27) # (//    This code acts like a simple chat) N
+(28) # (//---------------------------------------------------------------) N
+(29) # () N
+(30) # () S
+(var) K
+( net = require\(') p
+(net) str
+('\);) p n
+(31) # () N
+(32) # () S
+(// 1. Create server) c n
+(33) # () S
+(var) K
+( server = net.createServer\(\);) p n
+(34) # () N
+(35) # () S
+(// 2. attach handlers) c n
+(36) # () S
+(server.on\(') p
+(error) str
+(', function\(err\) {) p n
+(37) # (  console.log\(") S
+(Server Error: ) str
+(", err.message\);) p n
+(38) # (}\);) N
+(39) # () N
+(40) # (server.on\(') S
+(close) str
+(', function\(\) {) p n
+(41) # (  console.log\(") S
+(Server closed!) str
+("\);) p n
+(42) # (}\);) N
+(43) # () N
+(44) # () S
+(// create an array of clients) c n
+(45) # (// when a new client connects, it will be added to this array) N
+(46) # (// when the client disconnects, it will be removed from this array) N
+(47) # (// when the client sends a message, it will be broadcast to all) N
+(48) # (// other clients that are in this array) N
+(49) # () S
+(var) K
+( clients = []; ) p
+(// empty array) c n
+(50) # () N
+(51) # (// attach the connection handler. Here is where all work is done!) N
+(52) # () S
+(server.on\(') p
+(connection) str
+(', function\(socket\) {) p n
+(53) # (  console.log\(") S
+(Server got a new connection!) str
+("\);) p n
+(54) # (  ) S
+(//) c n
+(55) # () S
+(  ) p
+(// add socket to clients list) c n
+(56) # () S
+(  clients.push\(socket\);) p n
+(57) # () N
+(58) # (  ) S
+(// attach handler to read data  from socket readStream) c n
+(59) # () S
+(  socket.on\(') p
+(data) str
+(', function\(data\) {) p n
+(60) # (    console.log\(") S
+(got data:) str
+(", data.toString\(\)\);) p n
+(61) # () N
+(62) # (    ) S
+(// broadcast data to rest of clients) c n
+(63) # () S
+(    clients.forEach\(function\(otherSocket\) {) p n
+(64) # (      ) S
+(if) K
+( \(otherSocket !== socket\) {) p n
+(65) # (        otherSocket.write\(data\);) N
+(66) # (      }) N
+(67) # (    }\); ) S
+(// end forEach) c n
+(68) # () S
+(  }\); ) p
+(// end socket on data) c n
+(69) # () N
+(70) # () S
+(  ) p
+(// attach handler for connection closed) c n
+(71) # () S
+(  socket.on\(') p
+(close) str
+(', function\(\) {) p n
+(72) # (    console.log\(") S
+(Connection closed) str
+("\);) p n
+(73) # () N
+(1_tcp.js) (Page 1/2) (Nov 28, 16 9:08) title
+border
+grestore
+(Printed by Simanta Mitra) rhead
+(./8_HttpServer/4_httpServer.js, ./9_tcpServer/1_tcp.js) (14/15) (Monday April 10, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (2) 15
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(74) # (    ) p
+(// remove the client from the clients array) c n
+(75) # () S
+(    ) p
+(var) K
+( index = clients.indexOf\(socket\); ) p
+(// get index of item) c n
+(76) # () S
+(    clients.splice\(index, 1\); ) p
+(// remove the item from array) c n
+(77) # () S
+(  }\);) p n
+(78) # (}\); ) S
+(// end server on connection) c n
+(79) # () N
+(80) # (// 3. LISTEN for connections) N
+(81) # () S
+(server.listen\(4001\);) p n
+(82) # (console.log\(") S
+(Now Listening) str
+("\);) p n
+(83) # (console.log\(") S
+(Any number of clients can connect to this server) str
+("\);) p n
+(84) # (console.log\(") S
+(telnet localhost 4001 will start one client that connects) str
+("\);) p n
+(85) # () N
+(1_tcp.js) (Page 2/2) (Nov 28, 16 9:08) title
+border
+grestore
+(Printed by Simanta Mitra) rhead
+(./9_tcpServer/1_tcp.js) (15/15) (Monday April 10, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+
+%%Trailer
+end
+%%EOF

@@ -1,0 +1,24 @@
+<html>
+<head>
+<!-- This is the websocket SERVER -->
+<script src="http://localhost:5000/socket.io/socket.io.js"></script>
+
+</head>
+<body>
+<div id="msg"></div> 
+<script>
+  // connect to WEBSOCKET server
+  var socket = io.connect('http://localhost:5000');
+
+  // Fire an event (that the server will handle
+  socket.emit('myEvent', 'Hello Message from the client');
+
+  // Attach event handler for event fired by server
+  socket.on('server', function(data) {
+     var elem = document.getElementById('msg'); 
+     console.log(data);
+     elem.innerHTML += "<br>" + data; // append data that we got back
+  });
+</script>
+</body>
+</html>

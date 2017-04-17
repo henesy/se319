@@ -1,0 +1,1128 @@
+%!PS-Adobe-3.0
+%%Title: 1_httpServer.js, 2_httpServer.js, 3_httpServer.js, 4_httpServer.js, 1_tcp.js
+%%For: Simanta Mitra
+%%Creator: a2ps version 4.14
+%%CreationDate: Wed Apr 12 14:00:07 2017
+%%BoundingBox: 24 24 588 768
+%%DocumentData: Clean7Bit
+%%Orientation: Landscape
+%%Pages: 3
+%%PageOrder: Ascend
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: font Courier
+%%+ font Courier-Bold
+%%+ font Courier-BoldOblique
+%%+ font Courier-Oblique
+%%+ font Helvetica
+%%+ font Helvetica-Bold
+%%+ font Symbol
+%%+ font Times-Bold
+%%+ font Times-Roman
+%%DocumentProcessColors: Black 
+%%DocumentSuppliedResources: procset a2ps-a2ps-hdr
+%%+ procset a2ps-black+white-Prolog
+%%+ encoding ISO-8859-1Encoding
+%%EndComments
+/a2psdict 200 dict def
+a2psdict begin
+%%BeginProlog
+%%Copyright: (c) 1988, 89, 90, 91, 92, 93 Miguel Santana
+%%Copyright: (c) 1995, 96, 97, 98 Akim Demaille, Miguel Santana
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+
+% EPSF import as in the Red Book
+/BeginInclude {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack 
+  userdict begin
+    0 setgray 0 setlinecap
+    1 setlinewidth 0 setlinejoin
+    10 setmiterlimit [ ] 0 setdash newpath
+    gs_languagelevel 1 ne {
+      false setstrokeadjust false setoverprint 
+    } if
+} bind def
+
+/EndInclude {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+/BeginEPSF {
+  BeginInclude
+  /showpage { } def
+} bind def
+
+/EndEPSF {
+  EndInclude
+} bind def
+
+% Page prefeed
+/page_prefeed {         % bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} bind def
+
+/deffont {
+  findfont exch scalefont def
+} bind def
+
+/reencode_font {
+  findfont reencode 2 copy definefont pop def
+} bind def
+
+% Function c-show (str => -)
+% centers text only according to x axis.
+/c-show { 
+  dup stringwidth pop
+  2 div neg 0 rmoveto
+  show
+} bind def
+
+% Function l-show (str => -)
+% prints texts so that it ends at currentpoint
+/l-show {
+  dup stringwidth pop neg 
+  0 
+  rmoveto show
+} bind def
+
+% center-fit show (str w => -)
+% show centered, and scale currentfont so that the width is less than w
+/cfshow {
+  exch dup stringwidth pop
+  % If the title is too big, try to make it smaller
+  3 2 roll 2 copy
+  gt
+  { % if, i.e. too big
+    exch div
+    currentfont exch scalefont setfont
+  } { % ifelse
+    pop pop 
+  }
+  ifelse
+  c-show			% center title
+} bind def
+
+% Return the y size of the current font
+% - => fontsize
+/currentfontsize {
+  currentfont /FontMatrix get 3 get 1000 mul
+} bind def
+
+% reencode the font
+% <encoding-vector> <fontdict> -> <newfontdict>
+/reencode { %def
+  dup length 5 add dict begin
+    { %forall
+      % <vector> <key> <val>
+      1 index /FID ne 
+      { def }{ pop pop } ifelse
+    } forall
+    /Encoding exch def % -
+
+    % Use the font's bounding box to determine the ascent, descent,
+    % and overall height; don't forget that these values have to be
+    % transformed using the font's matrix.
+    % We use `load' because sometimes BBox is executable, sometimes not.
+    % Since we need 4 numbers an not an array avoid BBox from being executed
+    /FontBBox load aload pop
+    FontMatrix transform /Ascent exch def pop
+    FontMatrix transform /Descent exch def pop
+    /FontHeight Ascent Descent sub def
+
+    % Get the underline position and thickness if they're defined.
+    % Use 1 if they are not defined.
+    currentdict /FontInfo 2 copy known
+    { get
+      /UnderlinePosition 2 copy % <FontInfo> /UP <FontInfo> /UP
+      2 copy known
+      { get }{ pop pop 1 } ifelse
+      0 exch FontMatrix transform exch pop
+      def % <FontInfo>
+
+      /UnderlineThickness 2 copy % <FontInfo> /UT <FontInfo> /UT
+      2 copy known
+      { get }{ pop pop 1 } ifelse
+      0 exch FontMatrix transform exch pop
+      def % <FontInfo>
+      pop % -
+    }{ pop pop
+    } ifelse
+
+    currentdict
+  end 
+} bind def
+
+% Function print line number (<string> # -)
+/# {
+  gsave
+    sx cw mul neg 2 div 0 rmoveto
+    f# setfont
+    c-show
+  grestore
+} bind def
+
+% -------- Some routines to enlight plain b/w printings ---------
+
+% Underline
+% width --
+/dounderline {
+  currentpoint
+  gsave
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    0 rlineto
+    stroke
+  grestore
+} bind def
+
+% Underline a string
+% string --
+/dounderlinestring {
+  stringwidth pop
+  dounderline
+} bind def
+
+/UL {
+  /ul exch store
+} bind def
+
+% Draw a box of WIDTH wrt current font
+% width --
+/dobox {
+  currentpoint
+  gsave
+    newpath
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    dup 0 rlineto
+    0 currentfont /FontHeight get currentfontsize mul rlineto
+    neg 0 rlineto
+    closepath
+    stroke
+  grestore
+} bind def
+
+/BX {
+  /bx exch store
+} bind def
+
+% Box a string
+% string --
+/doboxstring {
+  stringwidth pop
+  dobox
+} bind def
+
+%
+% ------------- Color routines ---------------
+%
+/FG /setrgbcolor load def
+
+% Draw the background
+% width --
+/dobackground {
+  currentpoint
+  gsave
+    newpath
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    dup 0 rlineto
+    0 currentfont /FontHeight get currentfontsize mul rlineto
+    neg 0 rlineto
+    closepath
+    bgcolor aload pop setrgbcolor
+    fill
+  grestore
+} bind def
+
+% Draw bg for a string
+% string --
+/dobackgroundstring {
+  stringwidth pop
+  dobackground
+} bind def
+
+
+/BG {
+  dup /bg exch store
+  { mark 4 1 roll ] /bgcolor exch store } if
+} bind def
+
+
+/Show {
+  bg { dup dobackgroundstring } if
+  ul { dup dounderlinestring } if
+  bx { dup doboxstring } if
+  show
+} bind def
+
+% Function T(ab), jumps to the n-th tabulation in the current line
+/T {
+  cw mul x0 add
+  bg { dup currentpoint pop sub dobackground } if
+  ul { dup currentpoint pop sub dounderline } if
+  bx { dup currentpoint pop sub dobox } if
+  y0 moveto
+} bind def
+
+% Function n: move to the next line
+/n {
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+% Function N: show and move to the next line
+/N {
+  Show
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+/S {
+  Show
+} bind def
+
+%%BeginResource: procset a2ps-a2ps-hdr 2.0 2
+%%Copyright: (c) 1988, 89, 90, 91, 92, 93 Miguel Santana
+%%Copyright: (c) 1995, 96, 97, 98 Akim Demaille, Miguel Santana
+% Function title: prints page header.
+% <ct> <rt> <lt> are passed as argument
+/title { 
+  % 1. Draw the background
+  x v get y v get moveto
+  gsave
+    0 th 2 div neg rmoveto 
+    th setlinewidth
+    0.95 setgray
+    pw 0 rlineto stroke
+  grestore
+  % 2. Border it
+  gsave
+    0.7 setlinewidth
+    pw 0 rlineto
+    0 th neg rlineto
+    pw neg 0 rlineto
+    closepath stroke
+  grestore
+  % stk: ct rt lt
+  x v get y v get th sub 1 add moveto
+%%IncludeResource: font Helvetica
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  % 3. The left title
+  gsave
+    dup stringwidth pop fnfs 0.8 mul add exch % leave space took on stack
+    fnfs 0.8 mul hm rmoveto
+    show			% left title
+  grestore
+  exch
+  % stk: ct ltw rt
+  % 4. the right title
+  gsave
+    dup stringwidth pop fnfs 0.8 mul add exch % leave space took on stack
+    dup
+    pw exch stringwidth pop fnfs 0.8 mul add sub
+    hm
+    rmoveto
+    show			% right title
+  grestore
+  % stk: ct ltw rtw
+  % 5. the center title
+  gsave
+    pw 3 1 roll
+    % stk: ct pw ltw rtw
+    3 copy 
+    % Move to the center of the left room
+    sub add 2 div hm rmoveto
+    % What is the available space in here?
+    add sub fnfs 0.8 mul sub fnfs 0.8 mul sub
+    % stk: ct space_left
+%%IncludeResource: font Helvetica-Bold
+  fHelvetica-Bold fnfs scalefont setfont
+    cfshow
+  grestore
+} bind def
+
+% Function border: prints virtual page border
+/border { %def
+  gsave				% print four sides
+    0 setgray
+    x v get y v get moveto
+    0.7 setlinewidth		% of the square
+    pw 0 rlineto
+    0 ph neg rlineto
+    pw neg 0 rlineto
+    closepath stroke
+  grestore
+} bind def
+
+% Function water: prints a water mark in background
+/water { %def
+  gsave
+    scx scy moveto rotate
+%%IncludeResource: font Times-Bold
+  fTimes-Bold 100 scalefont setfont
+    .97 setgray
+    dup stringwidth pop 2 div neg -50 rmoveto
+    show
+  grestore
+} bind def
+
+% Function rhead: prints the right header
+/rhead {  %def
+  lx ly moveto
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  l-show
+} bind def
+
+% Function footer (cf rf lf -> -)
+/footer {
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  dx dy moveto
+  show
+
+  snx sny moveto
+  l-show
+  
+  fnx fny moveto
+  c-show
+} bind def
+%%EndResource
+%%BeginResource: procset a2ps-black+white-Prolog 2.0 1
+
+% Function T(ab), jumps to the n-th tabulation in the current line
+/T { 
+  cw mul x0 add y0 moveto
+} bind def
+
+% Function n: move to the next line
+/n { %def
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+% Function N: show and move to the next line
+/N {
+  Show
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+}  bind def
+
+/S {
+  Show
+} bind def
+
+/p {
+  false UL
+  false BX
+  fCourier bfs scalefont setfont
+  Show
+} bind def
+
+/sy {
+  false UL
+  false BX
+  fSymbol bfs scalefont setfont
+  Show
+} bind def
+
+/k {
+  false UL
+  false BX
+  fCourier-Oblique bfs scalefont setfont
+  Show
+} bind def
+
+/K {
+  false UL
+  false BX
+  fCourier-Bold bfs scalefont setfont
+  Show
+} bind def
+
+/c {
+  false UL
+  false BX
+  fCourier-Oblique bfs scalefont setfont
+  Show
+} bind def
+
+/C {
+  false UL
+  false BX
+  fCourier-BoldOblique bfs scalefont setfont
+  Show 
+} bind def
+
+/l {
+  false UL
+  false BX
+  fHelvetica bfs scalefont setfont
+  Show
+} bind def
+
+/L {
+  false UL
+  false BX
+  fHelvetica-Bold bfs scalefont setfont
+  Show 
+} bind def
+
+/str{
+  false UL
+  false BX
+  fTimes-Roman bfs scalefont setfont
+  Show
+} bind def
+
+/e{
+  false UL
+  true BX
+  fHelvetica-Bold bfs scalefont setfont
+  Show
+} bind def
+
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Courier
+%%IncludeResource: font Courier-Oblique
+%%IncludeResource: font Courier-Bold
+%%IncludeResource: font Times-Roman
+%%IncludeResource: font Symbol
+%%IncludeResource: font Courier-BoldOblique
+%%BeginResource: encoding ISO-8859-1Encoding
+/ISO-8859-1Encoding [
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/space /exclam /quotedbl /numbersign /dollar /percent /ampersand /quoteright 
+/parenleft /parenright /asterisk /plus /comma /minus /period /slash 
+/zero /one /two /three /four /five /six /seven 
+/eight /nine /colon /semicolon /less /equal /greater /question 
+/at /A /B /C /D /E /F /G 
+/H /I /J /K /L /M /N /O 
+/P /Q /R /S /T /U /V /W 
+/X /Y /Z /bracketleft /backslash /bracketright /asciicircum /underscore 
+/quoteleft /a /b /c /d /e /f /g 
+/h /i /j /k /l /m /n /o 
+/p /q /r /s /t /u /v /w 
+/x /y /z /braceleft /bar /braceright /asciitilde /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/space /exclamdown /cent /sterling /currency /yen /brokenbar /section 
+/dieresis /copyright /ordfeminine /guillemotleft /logicalnot /hyphen /registered /macron 
+/degree /plusminus /twosuperior /threesuperior /acute /mu /paragraph /bullet 
+/cedilla /onesuperior /ordmasculine /guillemotright /onequarter /onehalf /threequarters /questiondown 
+/Agrave /Aacute /Acircumflex /Atilde /Adieresis /Aring /AE /Ccedilla 
+/Egrave /Eacute /Ecircumflex /Edieresis /Igrave /Iacute /Icircumflex /Idieresis 
+/Eth /Ntilde /Ograve /Oacute /Ocircumflex /Otilde /Odieresis /multiply 
+/Oslash /Ugrave /Uacute /Ucircumflex /Udieresis /Yacute /Thorn /germandbls 
+/agrave /aacute /acircumflex /atilde /adieresis /aring /ae /ccedilla 
+/egrave /eacute /ecircumflex /edieresis /igrave /iacute /icircumflex /idieresis 
+/eth /ntilde /ograve /oacute /ocircumflex /otilde /odieresis /divide 
+/oslash /ugrave /uacute /ucircumflex /udieresis /yacute /thorn /ydieresis 
+] def
+%%EndResource
+% Initialize page description variables.
+/sh 612 def
+/sw 792 def
+/llx 24 def
+/urx 768 def
+/ury 588 def
+/lly 24 def
+/#copies 1 def
+/th 15.000000 def
+/fnfs 11 def
+/bfs 7.060185 def
+/cw 4.236111 def
+
+% Dictionary for ISO-8859-1 support
+/iso1dict 8 dict begin
+  /fCourier ISO-8859-1Encoding /Courier reencode_font
+  /fCourier-Bold ISO-8859-1Encoding /Courier-Bold reencode_font
+  /fCourier-BoldOblique ISO-8859-1Encoding /Courier-BoldOblique reencode_font
+  /fCourier-Oblique ISO-8859-1Encoding /Courier-Oblique reencode_font
+  /fHelvetica ISO-8859-1Encoding /Helvetica reencode_font
+  /fHelvetica-Bold ISO-8859-1Encoding /Helvetica-Bold reencode_font
+  /fTimes-Bold ISO-8859-1Encoding /Times-Bold reencode_font
+  /fTimes-Roman ISO-8859-1Encoding /Times-Roman reencode_font
+currentdict end def
+/bgcolor [ 0 0 0 ] def
+/bg false def
+/ul false def
+/bx false def
+% The font for line numbering
+/f# /Helvetica findfont bfs .6 mul scalefont def
+/fSymbol /Symbol findfont def
+/hm fnfs 0.25 mul def
+/pw
+   cw 86.400000 mul
+def
+/ph
+   520.335631 th add
+def
+/pmw urx llx sub pw 2 mul sub 1 div def
+/pmh 0 def
+/v 0 def
+/x [
+  0
+  dup pmw add pw add
+] def
+/y [
+  pmh ph add 0 mul ph add
+  dup
+] def
+/scx sw 2 div def
+/scy sh 2 div def
+/snx urx def
+/sny lly 2 add def
+/dx llx def
+/dy sny def
+/fnx scx def
+/fny dy def
+/lx snx def
+/ly ury fnfs 0.8 mul sub def
+/sx 5 def
+/tab 8 def
+/x0 0 def
+/y0 0 def
+%%EndSetup
+
+%%Page: (1,1) 1
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose is to show how to build a http server using nodejs) N
+(3) # (//) N
+(4) # (// http servers fire a 'request' event) N
+(5) # (//) N
+(6) # (// TO RUN THIS EXAMPLE) N
+(7) # (// 1. type node 1_httpServer.js on the command line) N
+(8) # (// 2. type http://localhost:4000 on a browser) N
+(9) # (//---------------------------------------------------------------) N
+(10) # () N
+(11) # () N
+(12) # () S
+(var) K
+( http = require\(') p
+(http) str
+('\);) p n
+(13) # () S
+(var) K
+( server = http.createServer\(\);) p n
+(14) # () N
+(15) # () S
+(// attach handler) c n
+(16) # () S
+(server.on\(') p
+(request) str
+(', function \(request,response\) {) p n
+(17) # (  response.writeHead\(200, {') S
+(Content-Type) str
+(': ') p
+(text/plain) str
+('}\); ) p
+(// header) c n
+(18) # () S
+(  response.write\(') p
+(Hello World) str
+('\); ) p
+(// data) c n
+(19) # () S
+(  response.end\(\); ) p
+(// done - send the data) c n
+(20) # () S
+(}\);) p n
+(21) # () N
+(22) # (server.listen\(4000\);) N
+(1_httpServer.js) (Page 1/1) (Nov 15, 15 22:02) title
+border
+/v 1 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose is to understand the request object) N
+(3) # (//) N
+(4) # (// request.url -- requested URL as string) N
+(5) # (// request.method -- POST/GET etc) N
+(6) # (// request.headers -- like host, connection, etc) N
+(7) # (//) N
+(8) # (// you can LISTEN for the body of the request by attaching handler) N
+(9) # (// it is just a readStream!) N
+(10) # (//) N
+(11) # (// TO RUN THIS EXAMPLE) N
+(12) # (// 1. type node 1_httpServer.js on the command line) N
+(13) # (// 2. type http://localhost:4000 on a browser) N
+(14) # (//---------------------------------------------------------------) N
+(15) # () N
+(16) # () N
+(17) # () S
+(var) K
+( util = require\(') p
+(util) str
+('\);) p n
+(18) # () S
+(var) K
+( http = require\(') p
+(http) str
+('\);) p n
+(19) # () S
+(var) K
+( server = http.createServer\(\);) p n
+(20) # () N
+(21) # () S
+(// attach handler) c n
+(22) # () S
+(server.on\(') p
+(request) str
+(', function \(request,response\) {) p n
+(23) # (  ) S
+(// attach handler to get BODY of request) c n
+(24) # () S
+(  ) p
+(// this will be mostly from forms etc) c n
+(25) # () S
+(  ) p
+(// or on post) c n
+(26) # () S
+(  request.on\(') p
+(data) str
+(', function\(data\) {) p n
+(27) # (    console.log\(") S
+(Got data from client: ) str
+(",data\);) p n
+(28) # (  }\);) N
+(29) # () N
+(30) # (  response.writeHead\(200, {') S
+(Content-Type) str
+(': ') p
+(text/plain) str
+('}\); ) p
+(// header) c n
+(31) # () N
+(32) # () S
+(  ) p
+(// see what all information is sent in the request object from) c n
+(33) # () S
+(  ) p
+(// the browser!) c n
+(34) # () S
+(  response.write\(util.inspect\(request\)\);) p n
+(35) # (  response.end\(\); ) S
+(// done - send the data) c n
+(36) # () S
+(}\);) p n
+(37) # () N
+(38) # (server.listen\(4000\);) N
+(2_httpServer.js) (Page 1/1) (Nov 15, 15 22:02) title
+border
+grestore
+(Printed by Simanta Mitra) rhead
+(8_HttpServer/1_httpServer.js, 8_HttpServer/2_httpServer.js) (1/3) (Wednesday April 12, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1,1) 2
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose is to understand the response object) N
+(3) # (//) N
+(4) # (// response.writeHead -- write Header) N
+(5) # (// ONLY WORKS BEFORE a response.write) N
+(6) # (//) N
+(7) # (// Here we will send a chunked response back to the client) N
+(8) # (// This is by default for nodejs when Content-Length header is not set) N
+(9) # (// send response.end\(\) closes the connection) N
+(10) # (//) N
+(11) # (// TO RUN THIS EXAMPLE) N
+(12) # (// 1. type node 1_httpServer.js on the command line) N
+(13) # (// 2. type http://localhost:4000 on a browser) N
+(14) # (//---------------------------------------------------------------) N
+(15) # () N
+(16) # () N
+(17) # () S
+(var) K
+( util = require\(') p
+(util) str
+('\);) p n
+(18) # () S
+(var) K
+( http = require\(') p
+(http) str
+('\);) p n
+(19) # () S
+(var) K
+( server = http.createServer\(\);) p n
+(20) # () N
+(21) # () S
+(// attach handler) c n
+(22) # () S
+(server.on\(') p
+(request) str
+(', function \(request,response\) {) p n
+(23) # () N
+(24) # (  response.writeHead\(200, {') S
+(Content-Type) str
+(': ') p
+(text/html) str
+('}\); ) p
+(// header) c n
+(25) # () N
+(26) # () S
+(  ) p
+(var) K
+( left = 10;) p n
+(27) # (  ) S
+(var) K
+( interval = setInterval \(function \(\) {) p n
+(28) # (    ) S
+(for) K
+( \() p
+(var) K
+( i = 0; i < 10; i++\) {) p n
+(29) # (      response.write\(left + ") S
+(:) str
+(" + Date.now\(\) + ") p
+( ) str
+("\);) p n
+(30) # (    }) N
+(31) # (    response.write\(") S
+(<br>) str
+("\); ) p
+(// new line in html) c n
+(32) # () S
+(    ) p
+(if) K
+( \(left-- === 0\) {) p n
+(33) # (      clearInterval\(interval\); ) S
+(// stop the timer!) c n
+(34) # () S
+(      response.end\(\);) p n
+(35) # (    }) N
+(36) # (  }, 1000\);) N
+(37) # () N
+(38) # (}\);) N
+(39) # () N
+(40) # (server.listen\(4000\);) N
+(3_httpServer.js) (Page 1/1) (Nov 15, 15 22:02) title
+border
+/v 1 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose is to serve a file!) N
+(3) # (//) N
+(4) # (// TO RUN THIS EXAMPLE) N
+(5) # (// 1. type node 1_httpServer.js on the command line) N
+(6) # (// 2. type http://localhost:4000/index.html  on a browser) N
+(7) # (// 3. type http://localhost:4000/3_httpServer.js  on a browser) N
+(8) # (//---------------------------------------------------------------) N
+(9) # () N
+(10) # () N
+(11) # () S
+(var) K
+( util = require\(') p
+(util) str
+('\);) p n
+(12) # () S
+(var) K
+( path = require\(') p
+(path) str
+('\);) p n
+(13) # () S
+(var) K
+( http = require\(') p
+(http) str
+('\);) p n
+(14) # () S
+(var) K
+( fs   = require\(') p
+(fs) str
+('\);) p n
+(15) # () S
+(var) K
+( server = http.createServer\(\);) p n
+(16) # () N
+(17) # () S
+(// attach handler) c n
+(18) # () S
+(server.on\(') p
+(request) str
+(', function \(req,res\) {) p n
+(19) # (  ) S
+(var) K
+( file = path.normalize\(') p
+(.) str
+(' + req.url\);) p n
+(20) # () N
+(21) # (  fs.exists\(file, function\(exists\) {) N
+(22) # (    ) S
+(if) K
+( \(exists\) {) p n
+(23) # (      ) S
+(var) K
+( rs = fs.createReadStream\(file\);) p n
+(24) # () N
+(25) # (      rs.on\(') S
+(error) str
+(', function\(\) {) p n
+(26) # (        res.writeHead\(500\); ) S
+(// error status) c n
+(27) # () S
+(        res.end\(') p
+(Internal Server Error) str
+('\);) p n
+(28) # (      }\);) N
+(29) # () N
+(30) # () N
+(31) # (      res.writeHead\(200\); ) S
+(// ok status) c n
+(32) # () N
+(33) # () S
+(      ) p
+(// PIPE the read stream with the RESPONSE stream) c n
+(34) # () S
+(      rs.pipe\(res\);) p n
+(35) # (    } ) N
+(36) # (    ) S
+(else) K
+( {) p n
+(37) # (      res.writeHead\(404\); ) S
+(// error status) c n
+(38) # () S
+(      res.end\(') p
+(NOT FOUND) str
+('\);) p n
+(39) # (    }) N
+(40) # (  }\);) N
+(41) # () N
+(42) # (}\); ) S
+(// end server on handler) c n
+(43) # () N
+(44) # () S
+(server.listen\(4000\);) p n
+(4_httpServer.js) (Page 1/1) (Nov 15, 15 22:04) title
+border
+grestore
+(Printed by Simanta Mitra) rhead
+(8_HttpServer/3_httpServer.js, 8_HttpServer/4_httpServer.js) (2/3) (Wednesday April 12, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1-2) 3
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (//---------------------------------------------------------------) c n
+(2) # (// The purpose of this example is to show how to create a simple) N
+(3) # (// chat server using nodejs) N
+(4) # (//) N
+(5) # (// After a server is created, it fires three events) N
+(6) # (// error   -- some error has occurred) N
+(7) # (// close   -- server is shutting down!) N
+(8) # (// connection -- some client has connected) N
+(9) # (//) N
+(10) # (// When connection, a socket that connects the CLIENT and the server is) N
+(11) # (// accessible. This socket fires two events ) N
+(12) # (// data -- this is fired whenever a data chunk is read by the server ) N
+(13) # (// close -- this is fired when the socket is being closed) N
+(14) # (//) N
+(15) # (// socket acts like a readStream and a writeStream.) N
+(16) # (// so, the socket.write\(\) method can be used to write to the client.) N
+(17) # (//) N
+(18) # (// server has a listen method \(which is like java's accept method) N
+(19) # (// except that it is non-blocking\)) N
+(20) # (//) N
+(21) # (// TO RUN THIS EXAMPLE) N
+(22) # (// 1. type node 1_tcp.js on the command line) N
+(23) # (// 2. open mutiple terminals. On each of them open a telnet session) N
+(24) # (//    telnet localhost 4001) N
+(25) # (//) N
+(26) # (//    type in some text on the telnet terminals) N
+(27) # (//    This code acts like a simple chat) N
+(28) # (//---------------------------------------------------------------) N
+(29) # () N
+(30) # () S
+(var) K
+( net = require\(') p
+(net) str
+('\);) p n
+(31) # () N
+(32) # () S
+(// 1. Create server) c n
+(33) # () S
+(var) K
+( server = net.createServer\(\);) p n
+(34) # () N
+(35) # () S
+(// 2. attach handlers) c n
+(36) # () S
+(server.on\(') p
+(error) str
+(', function\(err\) {) p n
+(37) # (  console.log\(") S
+(Server Error: ) str
+(", err.message\);) p n
+(38) # (}\);) N
+(39) # () N
+(40) # (server.on\(') S
+(close) str
+(', function\(\) {) p n
+(41) # (  console.log\(") S
+(Server closed!) str
+("\);) p n
+(42) # (}\);) N
+(43) # () N
+(44) # () S
+(// create an array of clients) c n
+(45) # (// when a new client connects, it will be added to this array) N
+(46) # (// when the client disconnects, it will be removed from this array) N
+(47) # (// when the client sends a message, it will be broadcast to all) N
+(48) # (// other clients that are in this array) N
+(49) # () S
+(var) K
+( clients = []; ) p
+(// empty array) c n
+(50) # () N
+(51) # (// attach the connection handler. Here is where all work is done!) N
+(52) # () S
+(server.on\(') p
+(connection) str
+(', function\(socket\) {) p n
+(53) # (  console.log\(") S
+(Server got a new connection!) str
+("\);) p n
+(54) # (  ) S
+(//) c n
+(55) # () S
+(  ) p
+(// add socket to clients list) c n
+(56) # () S
+(  clients.push\(socket\);) p n
+(57) # () N
+(58) # (  ) S
+(// attach handler to read data  from socket readStream) c n
+(59) # () S
+(  socket.on\(') p
+(data) str
+(', function\(data\) {) p n
+(60) # (    console.log\(") S
+(got data:) str
+(", data.toString\(\)\);) p n
+(61) # () N
+(62) # (    ) S
+(// broadcast data to rest of clients) c n
+(63) # () S
+(    clients.forEach\(function\(otherSocket\) {) p n
+(64) # (      ) S
+(if) K
+( \(otherSocket !== socket\) {) p n
+(65) # (        otherSocket.write\(data\);) N
+(66) # (      }) N
+(67) # (    }\); ) S
+(// end forEach) c n
+(68) # () S
+(  }\); ) p
+(// end socket on data) c n
+(69) # () N
+(70) # () S
+(  ) p
+(// attach handler for connection closed) c n
+(71) # () S
+(  socket.on\(') p
+(close) str
+(', function\(\) {) p n
+(72) # (    console.log\(") S
+(Connection closed) str
+("\);) p n
+(73) # () N
+(1_tcp.js) (Page 1/2) (Nov 28, 16 9:08) title
+border
+/v 1 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(74) # (    ) p
+(// remove the client from the clients array) c n
+(75) # () S
+(    ) p
+(var) K
+( index = clients.indexOf\(socket\); ) p
+(// get index of item) c n
+(76) # () S
+(    clients.splice\(index, 1\); ) p
+(// remove the item from array) c n
+(77) # () S
+(  }\);) p n
+(78) # (}\); ) S
+(// end server on connection) c n
+(79) # () N
+(80) # (// 3. LISTEN for connections) N
+(81) # () S
+(server.listen\(4001\);) p n
+(82) # (console.log\(") S
+(Now Listening) str
+("\);) p n
+(83) # (console.log\(") S
+(Any number of clients can connect to this server) str
+("\);) p n
+(84) # (console.log\(") S
+(telnet localhost 4001 will start one client that connects) str
+("\);) p n
+(85) # () N
+(1_tcp.js) (Page 2/2) (Nov 28, 16 9:08) title
+border
+grestore
+(Printed by Simanta Mitra) rhead
+(9_tcpServer/1_tcp.js) (3/3) (Wednesday April 12, 2017) footer
+end % of iso1dict
+pagesave restore
+showpage
+
+%%Trailer
+end
+%%EOF
