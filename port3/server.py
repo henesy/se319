@@ -24,15 +24,34 @@ print("Socket listening")
 def clientthread(conn):
 	req = conn.recv(1024).decode('utf8')
 	req_method = req.split(' ')[0]
-	print("Method: ", req_method)
+	print("Method:", req_method)
 
 	if "GET" in req_method:
+		with open('index.html', 'r') as index:
+			data=index.read()
 		conn.send(bytes("HTTP/1.1 200 OK\r\n", "UTF-8"))
 		conn.send(bytes("Content-Type: text/html\r\n", "UTF-8"))
 		conn.send(bytes("Connection: close\r\n\r\n", "UTF-8"))
-		conn.send(bytes("<html><h1>Test!</h1></html>", "UTF-8"))
+		conn.send(bytes(data, "UTF-8"))
+		# conn.send(bytes("<html><h1>Test!</h1></html>", "UTF-8"))
 		conn.close()
+	elif "POST" in req_method:
+		d = req.split('\n')
+		pd = d[len(d)-1].split('&')
+		post_data = {}
+		for i in pd:
+			it = i.split('=')
+			post_data[it[0]] = it[1]
+		print("Current ordo is:", post_data['ordo'])
+		if(post_data['ordo'] == "home"):
+			with open('home.html', 'r') as index:
+				data=index.read()
+			data = data.replace("$ID", post_data['pid'])
 
+			conn.send(bytes("HTTP/1.1 200 OK\r\n", "UTF-8"))
+			conn.send(bytes("Content-Type: text/html\r\n", "UTF-8"))
+			conn.send(bytes("Connection: close\r\n\r\n", "UTF-8"))
+			conn.send(bytes(data, "UTF-8"))
 
 #now keep talking with the client
 while 1:

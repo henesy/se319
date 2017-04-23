@@ -1,6 +1,6 @@
 Portfolio 3 for Group 20 (Sean Hinchee and Sam Westerlund)
 
-Written in: 
+Written in:
 
 * Python 3.4 (64-bit)
 * JavaScript
@@ -14,9 +14,20 @@ To run:
 
 * Windows
 
-.\run.bat 
+.\run.bat
 
 * GNU/Linux
 
 python server.py
 
+To quit:
+
+* Windows
+
+Ctrl + Pause
+or
+Ctrl + Break
+
+* GNU/Linux
+
+Ctrl + C
