@@ -1,0 +1,48 @@
+<html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="http://localhost:5000/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+<br>
+<a href="index.html">Login Page</a>
+<br>
+
+<div id="register">
+<h3>Register</h3>
+<br>
+<form id="regform" method="post" name="myform">
+Username: <input type="text" name="username" id="username"/><br>
+Password: <input type="password" name="password" id="password"/><br>
+<input type="button" value="create account" id="submit"/>
+</form>
+</div>
+
+<body>
+<div id="msg"></div> 
+<script>
+$(document).ready(function() {
+	// GET THE DOM OBJECTS
+	var btn1 = $("#submit");
+
+	btn1.click (function () {
+		// connect to WEBSOCKET server
+	var socket = io.connect('http://localhost:5000',{'forceNew': true });
+	
+		  // Fire an event (that the server will handle
+		  socket.emit('reg', $("#username").val(), $("#password").val());
+
+		  // Attach event handler for event fired by server
+	socket.on('regr', function(data) {
+		var elem = document.getElementById('msg'); 
+	    console.log(data);
+		elem.innerHTML += "<br>" + data; // append data that we got back
+	});
+	});
+
+});
+</script>
+</body>
+</html>

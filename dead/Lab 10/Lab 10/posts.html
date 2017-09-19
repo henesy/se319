@@ -1,0 +1,94 @@
+<html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="http://localhost:5000/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+<br>
+<a href="index.html">Logout</a>
+<br>
+<div id="users">
+
+</div>
+<div id="post">
+<form id="post" name="myPost">
+<label>Title :</label>
+<input type="text" name="title" id="title"/>
+<label>Description :</label>
+<input type="text" name="des" id="des"/>
+<input type="button" value="make post" id="mp"/>
+</form>
+</div>
+<br>
+<h3>Posts:</h3>
+<br>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Title</th>
+                <th>Desc</th>
+				<th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+<body>
+<div id="msg"></div> 
+<script>
+$(document).ready(function() {
+	// GET THE DOM OBJECTS
+	var addP = $("#mp");
+	// connect to WEBSOCKET server
+	var socket = io.connect('http://localhost:5000',{'forceNew': true });
+	var firstTime = true;
+	var name = window.location.href.split("?")[1];
+	socket.emit('posts');
+	socket.on('rposts', function(data, users) {
+		socket.emit('online', name);
+		$("table tbody tr").remove();
+		$("#users p").remove();
+		for(var i=0; i<users.length; i++){
+			markup = "<p>"+users[i].username + " ";
+			if(users[i].online <new Date().getTime()-5000){
+				markup+="offline";
+			}else{
+				markup+="online";
+			}
+			markup+="</p>";
+			$("#users").append(markup);
+		}
+		
+		for(var i=0; i<data.length; i++){
+			markup = "<tr><td>"+data[i].username+"</td>"+"<td>"+data[i].title+"</td><td>"+data[i].desc+"</td><td>"+data[i].t+"</td>";
+			if(name == "admin" || name == data[i].username){
+				markup += "<td><input type='button' value='delete' class='del' id='"+data[i].id+"'/></td>";
+				markup += "<td><input type='button' value='edit' class='edit' id='"+data[i].id+"'/></td>";
+			}
+			markup += "</tr>";
+			$("table tbody").append(markup);
+		}
+		firstTime = false;
+		$(".del").click (function () {
+			socket.emit('dpost', $(this).attr('id'));
+		});
+		$(".edit").click (function () {
+			socket.emit('epost', $(this).attr('id') ,$("#title").val(), $("#des").val());
+		});
+	});
+	
+	addP.click (function () {
+		  // Fire an event (that the server will handle
+		  socket.emit('addpost', name,$("#title").val(), $("#des").val());
+	});
+	
+
+
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+Sean:
+Initial Design
+Boilerplate code
+
+Sam:
+Finalize code
+Debug

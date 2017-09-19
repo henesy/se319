@@ -1,0 +1,29 @@
+<html>
+
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<title>Group 20, Portfolio 3</title>
+	<meta charset="utf-8">
+</head>
+
+<body>
+	<form enctype="multipart/form-data" action="/cgi/save.py" method="post">
+		<div>
+			<label for="pid">Playlist ID:</label>
+			<input type="text" name="pid" id="pid">
+		</div>
+		<p><input type="submit" value="Create Playlist" /></p>
+	</form>
+  <br>
+	$BODY
+</body>
+<script>
+	$(document).ready(function() {
+		$(".playlist").click(function(event) {
+  			window.location.replace("/cgi/playlists.py/"+event.target.id);
+		});
+
+	});
+</script>
+
+</html>

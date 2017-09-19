@@ -1,0 +1,70 @@
+<html>
+
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="/howler.js"></script>
+	<title>Group 20, Portfolio 3</title>
+	<meta charset="utf-8">
+</head>
+
+<body>
+	<a href="/">Home</a>
+	<br>
+	<!--
+	Should display songs in the order they will be played...
+	maybe click and drag to re-arrange order of songs?
+	maybe make URL something like /list/$ID where $ID is the pid for the playlist
+
+	Add upload button to add songs (figure out how to do in-browser .mp3 playing)
+
+	we'd then update the meta.txt file respectively!
+	></!-->
+	<form enctype="multipart/form-data" action="/cgi/save.py/$ID/f" method="post">
+		<p>File: <input type="file" name="filename" /></p>
+		<p><input type="submit" value="Upload" /></p>
+	</form>
+
+	$BODY
+</body>
+<script>
+	$(document).ready(function() {
+		audio = [$SONGS];
+		current = 0;
+
+		function NextOne(e) {
+			current++;
+			console.log((current)%(audio.length));
+			current = (current)%(audio.length);
+			audio[current].play();
+		}
+
+		for (i = 0; i < audio.length; i++) {
+			audio[i] = new Howl({
+				src: [audio[i]],
+				onend: NextOne
+			});
+		}
+
+		$(".song").click(function(event) {
+			audio[current].stop();
+			current = event.target.id;
+			audio[current].play();
+			console.log(current);
+		});
+
+		$(".delete").click(function(event) {
+			location.href ="/cgi/save.py/$ID/f/"+event.target.id;
+		});
+
+		$(".up").click(function(event) {
+			location.href ="/cgi/save.py/$ID/u/"+event.target.id;
+		});
+
+		$(".down").click(function(event) {
+			location.href ="/cgi/save.py/$ID/d/"+event.target.id;
+		});
+
+	});
+</script>
+
+</html>
